@@ -142,6 +142,15 @@ select_columns <- function(data,col_keep){
   return(data)
 }
 
+#' Turn string (length 8) into ISSN
+#'
+#' An ISSN is formatted as NNNN-NNNX, where N is a number, and X can be any number or character.
+#' If ISSNs are formatted differently, this can give errors when using a public API, so they can be
+#' reformatted with this function.
+#' A string with a different length will return NA.
+#'
+#' @param number string of length 8 (often a number)
+#' @return ISSN-formatted string.
 number_to_issn <- function(number){
   # ensure ISSN has two elements, with a hyphen in between
   if(is.na(number)){
