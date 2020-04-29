@@ -202,7 +202,14 @@ clean_doi <- function(column){
   return(column)
 }
 
-#' @param template allfiles$File_info
+#' Open and clean up source data
+#'
+#' This function opens a source file, then changes column headers to a standard format,
+#' removes any superfluous columns (if indicated in the excel template), and cleans DOI
+#' and ISSN columns using `clean_doi` and `clean_issn` functions.
+#'
+#' @param template vector with the description of standard columns (this must be the File_info column in the excel template)
+#' @return cleaned data frame
 open_clean <- function(col_config, template){
   # extract file name
   fn <- col_config[template=="Filename"]
