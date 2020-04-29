@@ -28,6 +28,10 @@ extract_uniques <- function(column){
 #' @param df data frame to save
 #' @param which_info either 'doaj' for DOAJ mining results, 'upw', for Unpaywall, or 'all', for all data
 save_df <- function(df, which_info){
+  # generate necessary folders
+  if (!file.exists(here::here("data"))){
+    dir.create(here::here("data"))
+  }
   if (!file.exists(here::here("data/clean"))){
     dir.create(here::here("data/clean"))
   }
