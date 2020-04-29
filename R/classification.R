@@ -166,7 +166,7 @@ upw_api <- function(doi,email){
 #' entries in a column, and return a data frame
 #' with their results.
 #'
-#' @param df
+#' @param df Source data frame that contains DOI and/or ISSN columns
 #' @param which_info What api will be mined? Either "doaj" or "upw" (unpaywall).
 #' @param email email address of user (required for the Unpaywall API; otherwise can be left empty)
 #' @return a data frame

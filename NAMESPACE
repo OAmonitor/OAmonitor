@@ -2,6 +2,12 @@
 
 export(clean_doi)
 export(clean_issn)
+export(doaj_api)
+export(doaj_pipeline)
+export(extract_uniques)
+export(get_vsnu)
 export(open_everything)
 export(read_ext)
+export(upw_api)
+export(upw_pipeline)
 import(magrittr)
