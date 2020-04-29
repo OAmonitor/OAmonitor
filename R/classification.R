@@ -5,14 +5,20 @@ remove_na <- function(column){
   return(column)
 }
 
+#' Extract unique values without NAs
+#'
 #' Uses unique and NA removal to retrieve
 #' a vector of unique entries in a column.
 #' This is useful when mining an API, trying
 #' to minimize the number of calls.
+#' @param column a vector from which unique values need to be extracted
+#' @return a vector of unique values
+#' @export
 extract_uniques <- function(column){
   all_entries <- column %>% unique() %>% remove_na()
   return(all_entries)
 }
+
 
 save_df <- function(df, which_info){
   # remove list columns so the data can be saved
@@ -31,12 +37,12 @@ save_df <- function(df, which_info){
 
 doaj_pipeline <- function(df){
   if(use_doaj=="api"){
-  df <- df %>% 
+  df <- df %>%
     api_to_df("doaj") %>%
     process_doaj()
   save_df(df, "doaj")
   } else if(use_doaj=="saved"){
-    df <- read_csv(path_doaj)    
+    df <- read_csv(path_doaj)
   } else{
     warning("Not sure what DOAJ data to use.
 Please indicate this in the config.R file, using the option 'api' for use of the DOAJ API,
@@ -70,7 +76,7 @@ doaj_api <- function(issn){
   Sys.sleep(0.6) # requests for this api are limited at 2 per second, so the request is slowed down.
   api <- "https://doaj.org/api/v1/search/journals/issn:"
   query <- paste0(api,issn)
-  result <- GET(query) %>% 
+  result <- GET(query) %>%
     content(as="text",encoding="UTF-8")
   result_line <- fromJSON(result,flatten=T)$results
   return(result_line)
@@ -80,7 +86,7 @@ doaj_api <- function(issn){
 upw_api <- function(doi,email = email_address){
   # compile query to send to unpaywall
   api <- "http://api.unpaywall.org/"
-  email <- paste("?email=",email,sep="") 
+  email <- paste("?email=",email,sep="")
   query <- paste0(api,doi,email)
   result <- GET(query)
   # resolve query results and transform to a line that can be added to a df
@@ -92,7 +98,7 @@ upw_api <- function(doi,email = email_address){
 #' Using an API mining  function, query all unique
 #' entries in a column, and return a data frame
 #' with their results.
-#' 
+#'
 #' @param df
 #' @param which_info What api will be mined? Either "doaj" or "upw" (unpaywall).
 api_to_df <- function(df, which_info){
@@ -102,9 +108,9 @@ api_to_df <- function(df, which_info){
   }else if(which_info == "upw"){
     all_entries <- extract_uniques(df$doi)
   }
-  
+
   collect <- list()
-  
+
   cat(paste("Mining the", which_info, "api on",length(all_entries),"items.\n"))
   cat(paste("This will take around",round(length(all_entries)/90,0),"minutes."))
   cat(paste0(" (Current time is ",lubridate::now(),".)\n"))
@@ -138,7 +144,7 @@ get_vsnu <- function(path){
 
 #' Specifically used to process the data frame
 #' that results from a doaj mining query.
-#' ISSN numbers are in a nested format, 
+#' ISSN numbers are in a nested format,
 #' they need to be un-nested.
 #' For the ease of future processing, the ISSN
 #' columns are renamed.
@@ -165,7 +171,7 @@ apply_upw <- function(df){
     df <- select(df, -oa_color)
   }
   df_with_upw <- left_join(df, upwdf, by="doi")
-  df <- df %>% 
+  df <- df %>%
     mutate(upw = df_with_upw$oa_color)
   return(df)
 }
@@ -223,7 +229,7 @@ get_custom <- function(path){
 
 custom_label <- function(column,custom_list){
   nlabels <- custom_list %>% names() %>% length()
-  
+
   # Make a dataframe from the IDs in the column
   # and determine whether they are labeled in any of
   # the custom columns.
@@ -240,7 +246,7 @@ custom_label <- function(column,custom_list){
     }
   }
   label_df <- bind_rows(label_list)
-  
+
   # Process this dataframe, to have an ID and
   # a T/F column that checks if any of the labels are
   # filled out.
@@ -249,13 +255,13 @@ custom_label <- function(column,custom_list){
            custom_green = rowSums(is.na(label_df)),
            custom_green = custom_green < nlabels)
   custom_return <- label_df %>% pull(custom_green)
-  
+
   # Gather all labels in a single column. With a right
   # join back, this will ensure each label is in the right place.
-  label_df <- label_df %>% 
+  label_df <- label_df %>%
     gather(label_header, label, -ID, -custom_green, na.rm=T) %>%
     right_join(label_df, by="ID")
-  
+
   # Multiple labels will make the dataframe
   # unusable to merge back to the original. In this case,
   # the previously generated custom_green column will be used.
@@ -270,14 +276,14 @@ custom_label <- function(column,custom_list){
 ################################### CLASSIFICATION ######################################
 
 #' @title Classification of papers
-#' 
+#'
 #' classify based on the information acquired
 #' All publications are classified according to their presence in check lists. In sequence:
-#' 1. match the journal ISSN with a list from the Directory of Open Access Journals (DOAJ). 
+#' 1. match the journal ISSN with a list from the Directory of Open Access Journals (DOAJ).
 #'    If the journal matches, the publication is Gold OA
-#' 2. match the DOI with a list obtained from VSNU. 
+#' 2. match the DOI with a list obtained from VSNU.
 #'    If the journal matches, the publication is Hybrid OA
-#' 3. obtain the OA status from Unpaywall. 
+#' 3. obtain the OA status from Unpaywall.
 #'    If the status is 'gold' or 'hybrid', the publication is Hybrid OA
 #'    If the status is 'green', the publication is Green OA
 #' NB in the classification pipeline these labels will be applied in sequence
@@ -299,13 +305,13 @@ classify_oa <- function(df){
         doaj ~ "DOAJ",
         vsnu ~ "VSNU",
         upw == "bronze" ~ "UPW (bronze)",
-        upw == "gold" ~ "UPW (gold)", 
+        upw == "gold" ~ "UPW (gold)",
         upw == "hybrid" ~ "UPW (hybrid)",
         upw == "green" ~ "UPW (green)",
         upw == "closed" ~ "UPW (closed)",
         TRUE ~ "NONE")
     )
-  
+
   # following additions are only done in case customization is required
   if(customized){
     df <- df %>%
