@@ -2,14 +2,16 @@
 % Please edit documentation in R/clean_data.R
 \name{system_id_check}
 \alias{system_id_check}
-\title{Checks that there are no duplicate system IDs between
-multiple source files, as this may be accidental and cause problems
-with deduplication and other assignments later on.}
+\title{Checking system ID columns for duplicate}
 \usage{
 system_id_check(df)
+}
+\arguments{
+\item{df}{data frame with `system_id` and `source` column.}
 }
 \description{
 Checks that there are no duplicate system IDs between
 multiple source files, as this may be accidental and cause problems
 with deduplication and other assignments later on.
+If this function finds duplicates, these duplicates are stored in the
 }
