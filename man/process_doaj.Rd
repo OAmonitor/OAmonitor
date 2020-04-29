@@ -10,7 +10,7 @@ process_doaj(df)
 \item{df}{the data frame resulting from a DOAJ API mining}
 }
 \value{
-the cleaned up data frame
+cleaned up data frame
 }
 \description{
 Specifically used to process the data frame that results from a doaj mining query.
