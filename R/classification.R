@@ -1,3 +1,6 @@
+#' @import magrittr
+NULL
+
 ############################## GENERIC CLASSIFICATION TOOLS ###############################
 
 remove_na <- function(column){
@@ -19,17 +22,24 @@ extract_uniques <- function(column){
   return(all_entries)
 }
 
-
+#' Save dataframes in data/clean
+#'
+#' Save three kinds of clean data: results from APIs and total data after classification.
+#' @param df data frame to save
+#' @param which_info either 'doaj' for DOAJ mining results, 'upw', for Unpaywall, or 'all', for all data
 save_df <- function(df, which_info){
+  if (!file.exists(here::here("data/clean"))){
+    dir.create(here::here("data/clean"))
+  }
   # remove list columns so the data can be saved
-  df <- df %>% select_if(is.atomic)
-  basename <- case_when(
+  df <- df %>% dplyr::select_if(is.atomic)
+  basename <- dplyr::case_when(
     which_info == "doaj" ~ "doaj_from_issn_",
     which_info == "upw" ~ "upw_from_doi_",
     which_info == "all" ~ "complete_dataframe_",
     TRUE ~ "unknown_info_")
   filename <- paste0("data/clean/", basename, lubridate::today(), ".csv")
-  write_csv(df, filename)
+  readr::write_csv(df, filename)
 }
 
 
@@ -292,7 +302,7 @@ classify_oa <- function(df){
   df <- df %>%
     apply_matches() %>%
     mutate(
-      OA_label = case_when(
+      OA_label = dplyr::case_when(
         doaj ~ "GOLD",
         vsnu ~ "HYBRID",
         upw == "bronze" ~ "CLOSED",
@@ -301,7 +311,7 @@ classify_oa <- function(df){
         upw == "green" ~ "GREEN",
         upw == "closed" ~ "CLOSED",
         TRUE ~ "CLOSED"),
-      OA_label_explainer = case_when(
+      OA_label_explainer = dplyr::case_when(
         doaj ~ "DOAJ",
         vsnu ~ "VSNU",
         upw == "bronze" ~ "UPW (bronze)",
@@ -317,11 +327,11 @@ classify_oa <- function(df){
     df <- df %>%
       apply_custom() %>%
       mutate(
-        OA_label = case_when(
+        OA_label = dplyr::case_when(
           OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ "GREEN",
           TRUE ~ OA_label
         ),
-        OA_label_explainer = case_when(
+        OA_label_explainer = dplyr::case_when(
           OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ paste0("CUSTOM (", custom_label,")"),
           TRUE ~ OA_label_explainer
         )
