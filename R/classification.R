@@ -52,13 +52,14 @@ save_df <- function(df, which_info){
 #'
 #' @param df data frame with an ISSN column
 #' @param source either "api" or the path of a saved DOAJ result
+#' @param max_year The journal must have been registered in the DOAJ before or during this year
 #' @return data frame with DOAJ results
 #' @export
-doaj_pipeline <- function(df, source){
+get_doaj <- function(df, source, max_year=lubridate::year(lubridate::today())){
   if(source=="api"){
   df <- df %>%
     api_to_df("doaj") %>%
-    process_doaj()
+    process_doaj(max_year)
   save_df(df, "doaj")
   } else if(file.exists(source)){
     #TODO add a check if the dataframe provided matches the saved results
@@ -82,7 +83,7 @@ or provide the path of saved data that was previously mined from the DOAJ API.")
 #' @param email email address of user (required by Unpaywall)
 #' @return data frame with unpaywall results
 #' @export
-upw_pipeline <- function(df, source="api", email){
+get_upw <- function(df, source="api", email){
   if(source=="api"){
   df <- df %>%
     api_to_df("upw", email)
@@ -107,8 +108,9 @@ or provide the path of saved data that was previously mined from the Unpaywall A
 #' For the ease of future processing, the ISSN columns are renamed.
 #'
 #' @param df the data frame resulting from a DOAJ API mining
-#' @return the cleaned up data frame
-process_doaj <- function(df){
+#' @param max_year The journal must have been registered in the DOAJ before or during this year
+#' @return  cleaned up data frame
+process_doaj <- function(df, report_year){
   df <- df %>%
     # unnest the issn information in the bibjson.identifier column
     tidyr::unnest(bibjson.identifier, keep_empty = T, names_sep="_") %>%
@@ -203,8 +205,6 @@ api_to_df <- function(df, which_info, email = ""){
 }
 
 
-################################# SOURCE PROCESSING ##########################################
-
 #' Read and clean VSNU data
 #'
 #' @param path path of VSNU data
@@ -217,4 +217,209 @@ get_vsnu <- function(path){
   return(vsnu)
 }
 
+
+
+
+################################## APPLYING SOURCE TESTS ###################################
+
+
+#' Add Unpaywall data to publications data frame
+#'
+#' This function conflates the publications data frame with the results of mining
+#' the Unpaywall API. The column containing the content of Unpaywall's `oa_color`
+#' is added to the data frame and labeled `upw`.
+#'
+#' @param df Source data frame containing a doi column
+#' @param upwdf Data frame resulting from unpaywall API mining (see `get_upw()`)
+#' @return Data frame with a column `upw` added
+#' @export
+apply_upw <- function(df, upwdf){
+  # extract the relevant column from the unpaywall df
+  # and place it in the main df.
+  if("oa_color"%in%colnames(df)){
+    # it is possible that oa_color already exists. This is the crucial column from Unpaywall,
+    # so we ensure here that the column is not duplicated (prompting suffix naming, causing confusion)
+    # by removing it from the df.
+    df <- select(df, -oa_color)
+  }
+  df_with_upw <- left_join(df, upwdf, by="doi")
+  df <- df %>%
+    mutate(upw = df_with_upw$oa_color)
+  return(df)
+}
+
+#' Add VSNU data to publications data frame
+#'
+#' This function checks DOIs in the publications data frame for their appearance in
+#' the VSNU report, and adds a column called `vsnu` containing True/False values
+#' that indicate that publications were published under the VSNU deal.
+#'
+#' @param df Source data frame containing a doi column
+#' @param vsnudf VSNU data (see `get_vsnu()`)
+#' @return Data frame with a column `vsnu` added
+#' @export
+apply_vsnu <- function(df, vsnudf){
+  # match with the VSNU document
+  vsnu_doi_strip <- remove_na(vsnudf$doi)
+  df <- df %>% mutate(
+    vsnu = doi%in%vsnu_doi_strip)
+  return(df)
+}
+
+#' Add DOAJ data to publications data frame
+#'
+#' This function checks ISSNs in the publications data frame for their appearance in
+#' the VSNU report, and adds a column called `doaj` containing True/False values
+#' that indicate that a journal is present in the DOAJ.
+#'
+#' @param df Source data frame containing an ISSN column
+#' @param doajdf Data frame resulting from DOAJ API mining (see `get_doaj()`)
+#' @return Data frame with a column `doaj` added
+#' @export
+apply_doaj <- function(df, doajdf){
+  # match issns with their existence in DOAJ
+  doaj_issn_strip <- remove_na(doajdf$issn)
+  df <- df %>% mutate(
+    doaj = issn%in%doaj_issn_strip|eissn%in%doaj_issn_strip)
+  return(df)
+}
+
+#' add matches info to the dataframe
+apply_matches <- function(df, doajdf, vsnudf, upwdf){
+  df <- df %>%
+    apply_doaj(doajdf) %>%
+    apply_vsnu(vsnudf) %>%
+    apply_upw(upwdf)
+  return(df)
+}
+
+###################################### CUSTOM LABELS ######################################
+apply_custom <- function(df){
+  if(customized == FALSE){
+    return(df)
+  }
+  custom_list <- get_custom(path_custom)
+  df <- df %>% mutate(
+    custom_label = custom_label(system_id,custom_list)
+  )
+  return(df)
+}
+
+
+get_custom <- function(path){
+  #TODO confirm that custom path exists
+  # get the dataframe with custom IDS
+  custom <- read_ext(path, "")
+  custom_list <- list()
+  customlabels <- colnames(custom)
+  for(label in customlabels){
+    ids <- custom %>% pull(label) %>% remove_na()
+    custom_list[[label]] <- ids
+  }
+  return(custom_list)
+}
+
+custom_label <- function(column,custom_list){
+  nlabels <- custom_list %>% names() %>% length()
+
+  # Make a dataframe from the IDs in the column
+  # and determine whether they are labeled in any of
+  # the custom columns.
+  label_list <- list()
+  for(label in names(custom_list)){
+    outlist <- NULL
+    for(id in column){
+      if(id%in%custom_list[[label]]){
+        outlist <- c(outlist,label)
+      } else{
+        outlist <- c(outlist, NA)
+      }
+      label_list[[label]] <- outlist
+    }
+  }
+  label_df <- bind_rows(label_list)
+
+  # Process this dataframe, to have an ID and
+  # a T/F column that checks if any of the labels are
+  # filled out.
+  label_df <- label_df %>%
+    mutate(ID = 1:n(),
+           custom_green = rowSums(is.na(label_df)),
+           custom_green = custom_green < nlabels)
+  custom_return <- label_df %>% pull(custom_green)
+
+  # Gather all labels in a single column. With a right
+  # join back, this will ensure each label is in the right place.
+  label_df <- label_df %>%
+    gather(label_header, label, -ID, -custom_green, na.rm=T) %>%
+    right_join(label_df, by="ID")
+
+  # Multiple labels will make the dataframe
+  # unusable to merge back to the original. In this case,
+  # the previously generated custom_green column will be used.
+  if(nrow(label_df) != length(column)){
+    warning("Duplicate IDs exist in the Custom ID data. No specific labels can therefore be assigned.")
+    return(custom_return)
+  } else{
+    label_df %>% pull(label) %>% return()
+  }
+}
+
+################################### CLASSIFICATION ######################################
+
+#' @title Classification of papers
+#'
+#' classify based on the information acquired
+#' All publications are classified according to their presence in check lists. In sequence:
+#' 1. match the journal ISSN with a list from the Directory of Open Access Journals (DOAJ).
+#'    If the journal matches, the publication is Gold OA
+#' 2. match the DOI with a list obtained from VSNU.
+#'    If the journal matches, the publication is Hybrid OA
+#' 3. obtain the OA status from Unpaywall.
+#'    If the status is 'gold' or 'hybrid', the publication is Hybrid OA
+#'    If the status is 'green', the publication is Green OA
+#' NB in the classification pipeline these labels will be applied in sequence
+#' Thus, e.g. if ISSN matches DOAJ but Unpaywall says 'green', the label will still be Gold OA.
+classify_oa <- function(df, doajdf, vsnudf, upwdf){
+  df <- df %>%
+    apply_matches(doajdf, vsnudf, upwdf) %>%
+    mutate(
+      OA_label = dplyr::case_when(
+        doaj ~ "GOLD",
+        vsnu ~ "HYBRID",
+        upw == "bronze" ~ "CLOSED",
+        upw == "gold" ~ "HYBRID", # indeed, we choose to label gold only confirmed DOAJ ISSN
+        upw == "hybrid" ~ "HYBRID",
+        upw == "green" ~ "GREEN",
+        upw == "closed" ~ "CLOSED",
+        TRUE ~ "CLOSED"),
+      OA_label_explainer = dplyr::case_when(
+        doaj ~ "DOAJ",
+        vsnu ~ "VSNU",
+        upw == "bronze" ~ "UPW (bronze)",
+        upw == "gold" ~ "UPW (gold)",
+        upw == "hybrid" ~ "UPW (hybrid)",
+        upw == "green" ~ "UPW (green)",
+        upw == "closed" ~ "UPW (closed)",
+        TRUE ~ "NONE")
+    )
+
+  # following additions are only done in case customization is required
+  if(customized){
+    df <- df %>%
+      apply_custom() %>%
+      mutate(
+        OA_label = dplyr::case_when(
+          OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ "GREEN",
+          TRUE ~ OA_label
+        ),
+        OA_label_explainer = dplyr::case_when(
+          OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ paste0("CUSTOM (", custom_label,")"),
+          TRUE ~ OA_label_explainer
+        )
+      )
+  }
+  save_df(df, "all")
+  return(df)
+}
 
