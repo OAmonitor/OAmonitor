@@ -52,14 +52,13 @@ save_df <- function(df, which_info){
 #'
 #' @param df data frame with an ISSN column
 #' @param source either "api" or the path of a saved DOAJ result
-#' @param max_year The journal must have been registered in the DOAJ before or during this year
 #' @return data frame with DOAJ results
 #' @export
-get_doaj <- function(df, source, max_year=lubridate::year(lubridate::today())){
+get_doaj <- function(df, source){
   if(source=="api"){
   df <- df %>%
     api_to_df("doaj") %>%
-    process_doaj(max_year)
+    process_doaj()
   save_df(df, "doaj")
   } else if(file.exists(source)){
     #TODO add a check if the dataframe provided matches the saved results
@@ -108,15 +107,13 @@ or provide the path of saved data that was previously mined from the Unpaywall A
 #' For the ease of future processing, the ISSN columns are renamed.
 #'
 #' @param df the data frame resulting from a DOAJ API mining
-#' @param max_year The journal must have been registered in the DOAJ before or during this year
 #' @return  cleaned up data frame
-process_doaj <- function(df, report_year){
+process_doaj <- function(df){
   df <- df %>%
     # unnest the issn information in the bibjson.identifier column
     tidyr::unnest(bibjson.identifier, keep_empty = T, names_sep="_") %>%
     rename(issn = bibjson.identifier_id,
-           issn_type = bibjson.identifier_type) %>%
-    dplyr::filter(lubridate::year(created_date) <= report_year)
+           issn_type = bibjson.identifier_type)
   return(df)
 }
 
@@ -274,9 +271,15 @@ apply_vsnu <- function(df, vsnudf){
 #'
 #' @param df Source data frame containing an ISSN column
 #' @param doajdf Data frame resulting from DOAJ API mining (see `get_doaj()`)
+#' @param max_year The journal must have been registered in the DOAJ before or during this year
 #' @return Data frame with a column `doaj` added
 #' @export
-apply_doaj <- function(df, doajdf){
+apply_doaj <- function(df, doajdf, max_year="previous"){
+  if(max_year == "previous"){
+    max_year = lubridate::year(lubridate::today()) - 1
+  }
+  doajdf <- doajdf %>%
+    dplyr::filter(lubridate::year(created_date) <= max_year)
   # match issns with their existence in DOAJ
   doaj_issn_strip <- remove_na(doajdf$issn)
   df <- df %>% mutate(
