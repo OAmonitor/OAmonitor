@@ -164,7 +164,18 @@ number_to_issn <- function(number){
   return(paste0(part1,"-",part2))
 }
 
-# cleaning DOIs and ISSN columns
+#' Clean ISSNs
+#'
+#' This function removes whitespace and punctuation from ISSNs
+#' and returns them in correct ISSN format.
+#' An ISSN is formatted as NNNN-NNNX, where N is a number, and X can be any number or character.
+#' If ISSNs are formatted differently, this can give errors when using a public API, so they can be
+#' reformatted with this function.
+#' A string with a different length will return NA.
+#'
+#' @param column ISSN(s)
+#' @return cleaned ISSN(s), vectorized
+#' @export
 clean_issn <- function(column){
   column <- str_replace(column,'\\s+','') #remove spaces from ISSN
   column <- str_replace_all(column,'[:punct:]','') #remove all punctuation
@@ -173,11 +184,22 @@ clean_issn <- function(column){
   return(column)
 }
 
+#' Clean DOIs
+#'
+#' This function removes url information, whitespace, and punctuation from DOIs
+#' and returns them in correct format, all characters converted to lowercase. Any
+#' additional DOIs separated by commas will also be removed so each field will contain
+#' only a single DOI.
+#'
+#' @param column DOI(s)
+#' @return cleaned DOI(s), vectorized
+#' @export
 clean_doi <- function(column){
   column <- str_extract(column,"10\\..+") #ensure only dois are kept, without url information
   column <- str_replace_all(column,'\\s+','') #remove spaces from DOI
   column <- tolower(column) #Change DOI to lowercase only
   column <- str_replace(column,",.+","") #remove duplicate DOIs separated with a comma
+  return(column)
 }
 
 #' @param template allfiles$File_info
