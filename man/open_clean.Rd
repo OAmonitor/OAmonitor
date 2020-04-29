@@ -7,6 +7,8 @@
 open_clean(col_config, template)
 }
 \arguments{
+\item{col_config}{vector with the original column names, sorted by a standard}
+
 \item{template}{vector with the description of standard columns (this must be the File_info column in the excel template)}
 }
 \value{
