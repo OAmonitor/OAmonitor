@@ -239,11 +239,15 @@ open_clean <- function(col_config, template){
   return(df)
 }
 
-
+#' Checking system ID columns for duplicate
+#'
+#' Checks that there are no duplicate system IDs between
+#' multiple source files, as this may be accidental and cause problems
+#' with deduplication and other assignments later on.
+#' If this function finds duplicates, these duplicates are stored in the
+#'
+#' @param df data frame with `system_id` and `source` column.
 system_id_check <- function(df){
-  #' Checks that there are no duplicate system IDs between
-  #' multiple source files, as this may be accidental and cause problems
-  #' with deduplication and other assignments later on.
   sources <- df$source %>%
     as.factor() %>%
     levels()
@@ -257,6 +261,9 @@ system_id_check <- function(df){
     all_ids <- c(all_ids,ids)
   }
   if(length(duplicates) > 0){
+    if (!file.exists(here::here("output"))){
+      dir.create(here::here("output"))
+    }
     df %>% filter(system_id%in%duplicates) %>%
       write_csv("output/confirm_duplicate_IDs.csv")
     warning("
