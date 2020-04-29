@@ -1,3 +1,6 @@
+#' @import magrittr
+NULL
+
 #' Open all files and return a dataframe
 #'
 #' This function can be used in the package OAmonitor to
@@ -16,7 +19,7 @@ open_everything <- function(allfiles){
     # extract file name and extension
     fn <- col[template=="Filename"]
     fn_ext <- col[template=="Format (tsv, csv, xls, or xlsx)"]
-    fn_ext <- str_replace(fn_ext,'[:punct:]','')
+    fn_ext <- stringr::str_replace(fn_ext,'[:punct:]','')
 
     # test if the column contains NAs; in this case the file will not be read
     if(sum(is.na(col))>1){
@@ -34,7 +37,7 @@ open_everything <- function(allfiles){
   }
 
   # remove excess variables, bind to dataframe
-  df <- bind_rows(alldata)
+  df <- dplyr::bind_rows(alldata)
 
   # check the system IDs for duplicates
   system_id_check(df)
@@ -55,7 +58,7 @@ read_ext <- function(fn, ext="", dir="data/"){
   # opening a file, with method depending on the extension
   # extract extension and put together filename
   if(ext == ""){
-  fn_ext <- str_split(fn,"\\.")[[1]]
+  fn_ext <- stringr::str_split(fn,"\\.")[[1]]
   ext <- fn_ext[-1]
   }
 
@@ -69,8 +72,8 @@ read_ext <- function(fn, ext="", dir="data/"){
   if(ext == "csv"){
     # multiple methods are possible, check which one yields the largest no. of columns
     # this is quite hacky, and generates unnecessary warnings. It does work though...
-    df1 <- read_delim(fn_path, delim=";")
-    df2 <- read_delim(fn_path, delim=",")
+    df1 <- readr::read_delim(fn_path, delim=";")
+    df2 <- readr::read_delim(fn_path, delim=",")
     if(ncol(df1)>ncol(df2)){
       df <- df1
     } else{
@@ -78,9 +81,9 @@ read_ext <- function(fn, ext="", dir="data/"){
     }
     rm(df1,df2)
   } else if(ext=="tsv"){
-    df <- read_delim(fn_path,delim="\t", escape_double = FALSE, trim_ws = TRUE)
+    df <- readr::read_delim(fn_path,delim="\t", escape_double = FALSE, trim_ws = TRUE)
   } else if(ext=="xls"|ext=="xlsx"){
-    df <- read_excel(fn_path)
+    df <- readxl::read_excel(fn_path)
   }
   return(df)
 }
@@ -108,13 +111,13 @@ column_rename <- function(data,col_config,template){
   if(!is.na(colnames(data) == eissn_column)){
     colnames(data)[colnames(data) == eissn_column] <- "eissn"
   } else{
-      data <- mutate(data, eissn = NA)
+      data <- dplyr::mutate(data, eissn = NA)
     }
   colnames(data)[colnames(data) == doi_column] <- "doi"
   colnames(data)[colnames(data) == org_column] <- "org_unit"
 
   # turn system ID column into character
-  data <- data %>% mutate(system_id = as.character(system_id))
+  data <- data %>% dplyr::mutate(system_id = as.character(system_id))
 
   # return renamed data
   return(data)
@@ -133,12 +136,12 @@ column_rename <- function(data,col_config,template){
 #' @return a data frame with reduced number of columns
 select_columns <- function(data,col_keep){
   data <- data %>%
-    select(system_id,
+    dplyr::select(system_id,
            issn,
            eissn,
            doi,
            org_unit,
-           all_of(col_keep))
+           tidyselect::all_of(col_keep))
   return(data)
 }
 
@@ -156,11 +159,11 @@ number_to_issn <- function(number){
   if(is.na(number)){
     return(NA)
   }
-  if(str_length(number)!=8){
+  if(stringr::str_length(number)!=8){
     return(NA)
   }
-  part1 <- str_sub(number, start = 1L, end = 4L)
-  part2 <- str_sub(number, start = 5L, end = 8L)
+  part1 <- stringr::str_sub(number, start = 1L, end = 4L)
+  part2 <- stringr::str_sub(number, start = 5L, end = 8L)
   return(paste0(part1,"-",part2))
 }
 
@@ -177,8 +180,8 @@ number_to_issn <- function(number){
 #' @return cleaned ISSN(s), vectorized
 #' @export
 clean_issn <- function(column){
-  column <- str_replace(column,'\\s+','') #remove spaces from ISSN
-  column <- str_replace_all(column,'[:punct:]','') #remove all punctuation
+  column <- stringr::str_replace(column,'\\s+','') #remove spaces from ISSN
+  column <- stringr::str_replace_all(column,'[:punct:]','') #remove all punctuation
   # ensure ISSN has two elements, with a hyphen in between
   column <- mapply(number_to_issn,column)
   return(column)
@@ -195,10 +198,10 @@ clean_issn <- function(column){
 #' @return cleaned DOI(s), vectorized
 #' @export
 clean_doi <- function(column){
-  column <- str_extract(column,"10\\..+") #ensure only dois are kept, without url information
-  column <- str_replace_all(column,'\\s+','') #remove spaces from DOI
+  column <- stringr::str_extract(column,"10\\..+") #ensure only dois are kept, without url information
+  column <- stringr::str_replace_all(column,'\\s+','') #remove spaces from DOI
   column <- tolower(column) #Change DOI to lowercase only
-  column <- str_replace(column,",.+","") #remove duplicate DOIs separated with a comma
+  column <- stringr::str_replace(column,",.+","") #remove duplicate DOIs separated with a comma
   return(column)
 }
 
@@ -208,17 +211,18 @@ clean_doi <- function(column){
 #' removes any superfluous columns (if indicated in the excel template), and cleans DOI
 #' and ISSN columns using `clean_doi` and `clean_issn` functions.
 #'
+#' @param col_config vector with the original column names, sorted by a standard
 #' @param template vector with the description of standard columns (this must be the File_info column in the excel template)
 #' @return cleaned data frame
 open_clean <- function(col_config, template){
   # extract file name
   fn <- col_config[template=="Filename"]
   fn_ext <- col_config[template=="Format (tsv, csv, xls, or xlsx)"]
-  fn_ext <- str_replace(fn_ext,'[:punct:]','')
+  fn_ext <- stringr::str_replace(fn_ext,'[:punct:]','')
 
   # what columns to keep?
   col_keep <- col_config[template=="Other columns to include"]
-  col_keep <- str_split(col_keep,", ") %>% unlist()
+  col_keep <- stringr::str_split(col_keep,", ") %>% unlist()
 
   # open the file and adjust the column names to the config input
   df <- read_ext(fn,ext=fn_ext) %>%
@@ -231,7 +235,7 @@ open_clean <- function(col_config, template){
 
   # clean DOI and ISSN, remove spaces and hyperlinks, change uppercase to lowercase etc.
   # also add source file column
-  df <- df %>% mutate(issn = clean_issn(issn),
+  df <- df %>% dplyr::mutate(issn = clean_issn(issn),
                       eissn = clean_issn(eissn),
                       doi = clean_doi(doi),
                       source = fn)
@@ -255,8 +259,8 @@ system_id_check <- function(df){
   duplicates <- c()
   for(s in sources){
     ids <- df %>%
-      filter(source == s) %>%
-      pull(system_id)
+      dplyr::filter(source == s) %>%
+      dplyr::pull(system_id)
     duplicates <- c(duplicates,ids[ids%in%all_ids])
     all_ids <- c(all_ids,ids)
   }
@@ -264,8 +268,8 @@ system_id_check <- function(df){
     if (!file.exists(here::here("output"))){
       dir.create(here::here("output"))
     }
-    df %>% filter(system_id%in%duplicates) %>%
-      write_csv("output/confirm_duplicate_IDs.csv")
+    df %>% dplyr::filter(system_id%in%duplicates) %>%
+      readr::write_csv("output/confirm_duplicate_IDs.csv")
     warning("
   Duplicate IDs exist between different imported datasets.
   Please ensure that these refer to the same files.
