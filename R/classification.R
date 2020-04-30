@@ -56,14 +56,17 @@ save_df <- function(df, which_info){
 #'
 #' @param df data frame with an ISSN column
 #' @param source either "api" or the path of a saved DOAJ result
+#' @param save_results Do you want to save the resulting data frame?
 #' @return data frame with DOAJ results
 #' @export
-get_doaj <- function(df, source){
+get_doaj <- function(df, source, save_results=F){
   if(source=="api"){
   df <- df %>%
     api_to_df("doaj") %>%
     process_doaj()
-  save_df(df, "doaj")
+  if(save_results == T){
+    save_df(df, "doaj")
+    }
   } else if(file.exists(source)){
     #TODO add a check if the dataframe provided matches the saved results
     #TODO rename df, this is confusing
@@ -84,13 +87,16 @@ or provide the path of saved data that was previously mined from the DOAJ API.")
 #' @param df data frame with a doi column
 #' @param source either "api" or the path of a saved unpaywall result
 #' @param email email address of user (required by Unpaywall)
+#' @param save_results Do you want to save the resulting data frame?
 #' @return data frame with unpaywall results
 #' @export
-get_upw <- function(df, source="api", email){
+get_upw <- function(df, source="api", email, save_results=F){
   if(source=="api"){
   df <- df %>%
     api_to_df("upw", email)
-  save_df(df, "upw")
+  if(save_results == T){
+    save_df(df, "upw")
+  }
   } else if(file.exists(source)){
     #TODO add a check if the dataframe provided matches the saved results
     #TODO rename df, this is confusing
@@ -420,9 +426,10 @@ custom_label <- function(column,custom_list){
 #' @param upwdf Data frame resulting from unpaywall API mining (see `get_upw()`)
 #' @param max_year The journal must have been registered in the DOAJ before or during this year
 #' @param custom Is a custom label applicable?
+#' @param save_results Do you want to save the resulting data frame?
 #' @return data frame with Open Access classification (OA_label) and explainer (OA_label_explainer)
 #' @export
-classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F){
+classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F, save_results=F){
   #TODO if data columns do not exist: add them, and remove apply_matches
   df <- df %>%
     apply_matches(doajdf=doajdf, vsnudf=vsnudf, upwdf=upwdf, max_year) %>%
@@ -450,7 +457,7 @@ classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F
   # following additions are only done in case customization is required
   if(custom){
     df <- df %>%
-      apply_custom() %>%
+      apply_custom() %>% #TODO this function requires a path
       dplyr::mutate(
         OA_label = dplyr::case_when(
           OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ "GREEN",
@@ -462,7 +469,9 @@ classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F
         )
       )
   }
-  save_df(df, "all")
+  if(save_results == T){
+    save_df(df, "all")
+  }
   return(df)
 }
 
