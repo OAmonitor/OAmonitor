@@ -1,0 +1,29 @@
+---
+title: "Open Access monitor"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{OAmonitor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(OAmonitor)
+```
+
+
+Fill out the excel template like so:
+
+
+Then load all files in the excel template
+```{r}
+open_everything()
+```
+

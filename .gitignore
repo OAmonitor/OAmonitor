@@ -44,3 +44,4 @@ vignettes/*.pdf
 
 # Excel and other office files being edited
 ~*
+inst/doc

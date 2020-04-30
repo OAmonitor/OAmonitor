@@ -34,3 +34,7 @@ Imports:
  tidyselect (>= 1.0.0),
  tidyverse(>= 1.3.0),
  usethis (>= 1.5.1)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
