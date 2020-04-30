@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(OAmonitor)
+
 ```
 
 
@@ -24,6 +25,7 @@ Fill out the excel template like so:
 
 Then load all files in the excel template
 ```{r}
-open_everything()
+
+
 ```
 
