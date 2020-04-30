@@ -59,7 +59,7 @@ save_df <- function(df, which_info){
 #' @param save_results Do you want to save the resulting data frame?
 #' @return data frame with DOAJ results
 #' @export
-get_doaj <- function(df, source, save_results=F){
+get_doaj <- function(df, source="api", save_results=F){
   if(source=="api"){
   df <- df %>%
     api_to_df("doaj") %>%
