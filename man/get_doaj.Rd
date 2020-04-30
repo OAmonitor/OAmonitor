@@ -4,12 +4,14 @@
 \alias{get_doaj}
 \title{Get DOAJ data from indicated source}
 \usage{
-get_doaj(df, source)
+get_doaj(df, source, save_results = F)
 }
 \arguments{
 \item{df}{data frame with an ISSN column}
 
 \item{source}{either "api" or the path of a saved DOAJ result}
+
+\item{save_results}{Do you want to save the resulting data frame?}
 }
 \value{
 data frame with DOAJ results

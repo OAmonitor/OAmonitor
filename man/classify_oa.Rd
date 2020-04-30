@@ -4,7 +4,15 @@
 \alias{classify_oa}
 \title{Classification of papers}
 \usage{
-classify_oa(df, doajdf, vsnudf, upwdf, max_year = "previous", custom = F)
+classify_oa(
+  df,
+  doajdf,
+  vsnudf,
+  upwdf,
+  max_year = "previous",
+  custom = F,
+  save_results = F
+)
 }
 \arguments{
 \item{df}{Source data frame containing doi and issn columns}
@@ -18,6 +26,8 @@ classify_oa(df, doajdf, vsnudf, upwdf, max_year = "previous", custom = F)
 \item{max_year}{The journal must have been registered in the DOAJ before or during this year}
 
 \item{custom}{Is a custom label applicable?}
+
+\item{save_results}{Do you want to save the resulting data frame?}
 }
 \value{
 data frame with Open Access classification (OA_label) and explainer (OA_label_explainer)

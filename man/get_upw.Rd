@@ -4,7 +4,7 @@
 \alias{get_upw}
 \title{Get Unpaywall data from indicated source}
 \usage{
-get_upw(df, source = "api", email)
+get_upw(df, source = "api", email, save_results = F)
 }
 \arguments{
 \item{df}{data frame with a doi column}
@@ -12,6 +12,8 @@ get_upw(df, source = "api", email)
 \item{source}{either "api" or the path of a saved unpaywall result}
 
 \item{email}{email address of user (required by Unpaywall)}
+
+\item{save_results}{Do you want to save the resulting data frame?}
 }
 \value{
 data frame with unpaywall results
