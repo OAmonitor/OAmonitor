@@ -26,7 +26,7 @@ extract_uniques <- function(column){
 #'
 #' Save three kinds of clean data: results from APIs and total data after classification.
 #' @param df data frame to save
-#' @param which_info either 'doaj' for DOAJ mining results, 'upw', for Unpaywall, or 'all', for all data
+#' @param which_info either 'doaj' for DOAJ mining results, 'upw', for Unpaywall, 'all', for all data, or 'check' for publications that need to be verified.
 save_df <- function(df, which_info){
   # generate necessary folders
   if (!file.exists(here::here("data"))){
@@ -41,6 +41,7 @@ save_df <- function(df, which_info){
     which_info == "doaj" ~ "doaj_from_issn_",
     which_info == "upw" ~ "upw_from_doi_",
     which_info == "all" ~ "complete_dataframe_",
+    which_info == "check" ~ "check_these_publications_",
     TRUE ~ "unknown_info_")
   filename <- paste0("data/clean/", basename, lubridate::today(), ".csv")
   readr::write_csv(df, filename)
