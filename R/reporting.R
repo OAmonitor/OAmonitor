@@ -47,30 +47,44 @@ deduplicate <- function(df){
 
 ############################### REQUEST CUSTOMIZATION ###############################
 
-#' Check per unit for sufficient information
+
+#' Screen for sufficient information
 #'
-#' This function screens existing
-check_all <- function(df){
-  checkthese <- NULL
-  checkthese <- infocheck(df,checkthese)
-
-  for(cat in levels(as.factor(df$org_unit))){
-    df_temp <- df %>% filter(org_unit==cat)
-    checkthese <- infocheck(df_temp,checkthese)
+#' Screen the dataframe to see whether there is sufficient information
+#' in each reporting unit to determine whether
+#'
+#' @param df The dataframe to check
+#' @param cutoff The accepted proportion of "NONE" per organization unit
+#' @param save Should the results be saved?
+#' @return Tibble with publications to check manually.
+#' @export
+check_info <- function(df, cutoff = 0.05, save = F){
+  if(!"OA_label_explainer" %in% names(df)){
+    stop("Before checking the information status, please run the classification pipeline (`classify_oa()`).")
   }
 
-  outname <- paste0("output/check_these_manually_",lubridate::today(),".csv")
-  checkthese %>% deduplicate() %>% write_csv(outname)
+  # extract the org_units for which the percentage "NONE" exceeds the cutoff
+  org_units_to_check <- df %>%
+    dplyr::group_by(org_unit) %>%
+    dplyr::summarize(no_label = sum(OA_label_explainer=="NONE")/dplyr::n()) %>%
+    dplyr::filter(no_label > cutoff) %>%
+    dplyr::pull(org_unit)
+
+  # extract individual publications to check
+  pubs_to_check <- df %>%
+    dplyr::filter(org_unit %in% org_units_to_check & OA_label_explainer=="NONE") %>%
+    dplyr::group_by(source) %>% # to ensure that all system_ids will be represented
+    deduplicate()
+
+  # save — if opted
+  if(save){
+    save_df(pubs_to_check, "check")
+    cat("A csv with publications for manual screening has been stored in data/clean.")
+    }
+
+  return(pubs_to_check)
 }
 
-infocheck <- function(df,checkthese){
-  df <- deduplicate(df)
-  f_mis <- sum(df$OA_label_explainer=="NONE")/nrow(df)
-  if(f_mis>cutoff_missing){
-    checkthese <- rbind(checkthese,filter(df,OA_label_explainer=="NONE"))
-  }
-  return(checkthese)
-}
 
 #################################### DATA REFORMATTING FOR REPORT ###########################
 get_first_word <- function(sentence){
