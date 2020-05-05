@@ -90,8 +90,11 @@ or provide the path of saved data that was previously mined from the DOAJ API.")
 #' @param save_results Do you want to save the resulting data frame?
 #' @return data frame with unpaywall results
 #' @export
-get_upw <- function(df, source="api", email, save_results=F){
+get_upw <- function(df, source="api", email="", save_results=F){
   if(source=="api"){
+    if(email == ""){
+      warning("Provide a valid email address to mine the Unpaywall API.")
+    }
   df <- df %>%
     api_to_df("upw", email)
   if(save_results == T){
@@ -219,7 +222,7 @@ api_to_df <- function(df, which_info, email = ""){
 #' @export
 get_vsnu <- function(path){
   # get all VSNU DOIs
-  vsnu <- read_ext(path, "")
+  vsnu <- read_ext(path)
   vsnu <- vsnu %>% dplyr::mutate(doi = clean_doi(DOI))
   return(vsnu)
 }
@@ -343,7 +346,7 @@ apply_custom <- function(df, path){
 get_custom <- function(path){
   #TODO confirm that custom path exists
   # get the dataframe with custom IDS
-  custom <- read_ext(path, "")
+  custom <- read_ext(path)
   custom_list <- list()
   customlabels <- colnames(custom)
   for(label in customlabels){

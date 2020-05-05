@@ -4,7 +4,7 @@
 \alias{get_upw}
 \title{Get Unpaywall data from indicated source}
 \usage{
-get_upw(df, source = "api", email, save_results = F)
+get_upw(df, source = "api", email = "", save_results = F)
 }
 \arguments{
 \item{df}{data frame with a doi column}
