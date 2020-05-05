@@ -28,8 +28,15 @@ deduplicate <- function(df){
   # separate between entries with and without doi
   df_nondoi <- df %>% dplyr::filter(is.na(doi))
   df_doi <- df %>% dplyr::filter(!is.na(doi))
-  # deduplicate by DOI
-  df_doi <- dplyr::distinct(df,doi,.keep_all = T)
+  # combine so that doi-having entries are all first
+  df <- dplyr::bind_rows(df_doi,df_nondoi)
+  # deduplicate by system_ID/source combination
+  df <- dplyr::distinct(df,system_id,source,.keep_all = T)
+  # separate between entries with and without doi
+  df_nondoi <- df %>% dplyr::filter(is.na(doi))
+  df_doi <- df %>% dplyr::filter(!is.na(doi))
+  # deduplicate the doi-having entries
+  df_doi <- dplyr::distinct(df_doi,doi,.keep_all = T)
   # combine
   df <- dplyr::bind_rows(df_doi,df_nondoi)
   # deduplicate by system_ID/source combination
@@ -41,13 +48,16 @@ deduplicate <- function(df){
 #'
 #' Resulting dataframe ensures no duplication exists within
 #' organization units, but duplication remains between.
+#' @param df The dataframe that needs to be deduplicated.
+#' @return The deduplicated dataframe.
+#' @export
 deduplicate_per_unit <- function(df){
   df_dedup <- NULL
   for(unit in levels(as.factor(df$org_unit))){
     df_sub <- df %>%
       dplyr::filter(org_unit==unit) %>%
       deduplicate()
-    df_dedup <- bind_rows(df_dedup,df_sub)
+    df_dedup <- dplyr::bind_rows(df_dedup,df_sub)
   }
   return(df_dedup)
 }

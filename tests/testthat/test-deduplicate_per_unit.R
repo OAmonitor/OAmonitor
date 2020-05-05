@@ -1,4 +1,4 @@
-context("deduplicate")
+context("deduplicate_per_unit")
 
 test_that("deduplication is performed accurately",{
   df <- tibble::tibble(
@@ -15,22 +15,13 @@ test_that("deduplication is performed accurately",{
             "10.15185/izawol.447",
             "10.15185/izawol.447",
             NA
-            ),
+    ),
     system_id = c("A1","A1","B2","A3","B3","B3","A4","B4","A4","A5","A1","A5","A1"),
     source = c("source1","source1","source2","source1","source2","source2",
-                 "source1","source2","source1","source1","source2","source1","source2")
-    )
-  df_dedup <- deduplicate(df)
+               "source1","source2","source1","source1","source2","source1","source2"),
+    org_unit = c("A","A","A","B","A","B","B","A","A","B","A","B","A")
+  )
+  df_dedup <- deduplicate_per_unit(df)
   expect_true("tbl"%in%class(df_dedup))
-  expect_true(nrow(df_dedup) == 5)
-})
-
-
-test_that("deduplication function tests for presence of columns",{
-  df <- tibble::tibble(doi = 1:10, system_id = 1:10)
-  expect_error(deduplicate(df))
-  df <- tibble::tibble(source = 1:10, system_id = 1:10)
-  expect_error(deduplicate(df))
-  df <- tibble::tibble(source = 1:10, doi = 1:10)
-  expect_error(deduplicate(df))
+  expect_true(nrow(df_dedup) == 8)
 })
