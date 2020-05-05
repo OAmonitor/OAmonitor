@@ -44,25 +44,12 @@ deduplicate <- function(df){
   return(df)
 }
 
-#' Deduplicate a dataframe for each level org_unit
-#'
-#' Resulting dataframe ensures no duplication exists within
-#' organization units, but duplication remains between.
-#' @param df The dataframe that needs to be deduplicated.
-#' @return The deduplicated dataframe.
-#' @export
-deduplicate_per_unit <- function(df){
-  df_dedup <- NULL
-  for(unit in levels(as.factor(df$org_unit))){
-    df_sub <- df %>%
-      dplyr::filter(org_unit==unit) %>%
-      deduplicate()
-    df_dedup <- dplyr::bind_rows(df_dedup,df_sub)
-  }
-  return(df_dedup)
-}
 
 ############################### REQUEST CUSTOMIZATION ###############################
+
+#' Check per unit for sufficient information
+#'
+#' This function screens existing
 check_all <- function(df){
   checkthese <- NULL
   checkthese <- infocheck(df,checkthese)
@@ -244,7 +231,7 @@ full_report <- function(df,name="all"){
   commandline_report(name)
   name_slug <- str_replace(name," ","_")
   outfilename <- paste0("./output/report_",name_slug,"_",lubridate::today(),".csv")
-  df <- deduplicate_per_unit(df)
+  df <- df %>% dplyr::group_by(org_unit) %>% deduplicate()
   report_to_dataframe(df) %>% write_csv(outfilename)
   report_to_image(df,name)
   report_to_alluvial(df,name)
