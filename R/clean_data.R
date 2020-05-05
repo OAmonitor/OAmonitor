@@ -66,10 +66,10 @@ read_ext <- function(fn, ext="", dir=""){
   }
 
   # construct file path
-  if(stringr::str_sub(dir,-1L)!= "/"){
+  if(dir != "" & stringr::str_sub(dir,-1L)!= "/"){
       dir = paste0(dir,"/")
     }
-    fn_path <- paste0(dir,fn)
+  fn_path <- paste0(dir,fn)
 
   if(ext == "csv"){
     # multiple methods are possible, check which one yields the largest no. of columns
