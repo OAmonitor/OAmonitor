@@ -4,7 +4,7 @@
 \alias{get_doaj}
 \title{Get DOAJ data from indicated source}
 \usage{
-get_doaj(df, source, save_results = F)
+get_doaj(df, source = "api", save_results = F)
 }
 \arguments{
 \item{df}{data frame with an ISSN column}
