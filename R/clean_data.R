@@ -74,8 +74,8 @@ read_ext <- function(fn, ext="", dir=""){
   if(ext == "csv"){
     # multiple methods are possible, check which one yields the largest no. of columns
     # this is quite hacky, and generates unnecessary warnings. It does work though...
-    df1 <- readr::read_delim(fn_path, delim=";")
-    df2 <- readr::read_delim(fn_path, delim=",")
+    df1 <- suppressWarnings(readr::read_delim(fn_path, delim=";"))
+    df2 <- suppressWarnings(readr::read_delim(fn_path, delim=","))
     if(ncol(df1)>ncol(df2)){
       df <- df1
     } else{
