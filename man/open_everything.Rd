@@ -4,10 +4,12 @@
 \alias{open_everything}
 \title{Open all files and return a dataframe}
 \usage{
-open_everything(allfiles)
+open_everything(file, dir = "")
 }
 \arguments{
-\item{allfiles}{The content of the excel template, read with \code{read_excel()}.}
+\item{file}{The (entire!) path to the (filled out) excel template file.}
+
+\item{dir}{The path to the folder in which all data content files are located.}
 }
 \value{
 a data frame combining all file content

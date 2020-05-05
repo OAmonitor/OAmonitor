@@ -8,10 +8,13 @@ NULL
 #' excel template.
 #' The files will have to be stored in the data folder
 #' and formatted either as tsv, csv, xls, or xlsx.
-#' @param allfiles The content of the excel template, read with \code{read_excel()}.
+#' @param file The (entire!) path to the (filled out) excel template file.
+#' @param dir The path to the folder in which all data content files are located.
 #' @return a data frame combining all file content
 #' @export
-open_everything <- function(allfiles){
+open_everything <- function(file, dir=""){
+  allfiles <- readxl::read_excel(file)
+
   alldata <- list()
   template = allfiles$File_info
 
@@ -33,7 +36,7 @@ open_everything <- function(allfiles){
     }
 
     # open the file, clean columns, and save to the alldata list
-    alldata[[fn]] <- open_clean(col,template)
+    alldata[[fn]] <- open_clean(col,template,dir)
   }
 
   # remove excess variables, bind to dataframe
@@ -51,10 +54,10 @@ open_everything <- function(allfiles){
 #' functions to open a data file.
 #' @param fn the filename
 #' @param ext the file extension (may also be provided by filename). Can be "csv", "tsv", "xls", or "xlsx".
-#' @param dir location of the file
+#' @param dir folder location (path) of the file
 #' @return a data frame
 #' @export
-read_ext <- function(fn, ext="", dir="data/"){
+read_ext <- function(fn, ext="", dir=""){
   # opening a file, with method depending on the extension
   # extract extension and put together filename
   if(ext == ""){
@@ -62,12 +65,11 @@ read_ext <- function(fn, ext="", dir="data/"){
   ext <- fn_ext[-1]
   }
 
-  # only paste on the data directory if the path itself does not exist
-  if(file.exists(fn)){
-    fn_path <- fn
-  } else{
+  # construct file path
+  if(stringr::str_sub(dir,-1L)!= "/"){
+      dir = paste0(dir,"/")
+    }
     fn_path <- paste0(dir,fn)
-  }
 
   if(ext == "csv"){
     # multiple methods are possible, check which one yields the largest no. of columns
@@ -213,8 +215,9 @@ clean_doi <- function(column){
 #'
 #' @param col_config vector with the original column names, sorted by a standard
 #' @param template vector with the description of standard columns (this must be the File_info column in the excel template)
+#' @param dir folder location (path) of the described file
 #' @return cleaned data frame
-open_clean <- function(col_config, template){
+open_clean <- function(col_config, template, dir){
   # extract file name
   fn <- col_config[template=="Filename"]
   fn_ext <- col_config[template=="Format (tsv, csv, xls, or xlsx)"]
@@ -225,7 +228,7 @@ open_clean <- function(col_config, template){
   col_keep <- stringr::str_split(col_keep,", ") %>% unlist()
 
   # open the file and adjust the column names to the config input
-  df <- read_ext(fn,ext=fn_ext) %>%
+  df <- read_ext(fn,ext=fn_ext, dir = dir) %>%
     column_rename(col_config,template)
 
   # reduce number of columns, except when the user wants to keep all

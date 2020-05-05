@@ -4,14 +4,14 @@
 \alias{read_ext}
 \title{Determines format and reads in tabular data}
 \usage{
-read_ext(fn, ext = "", dir = "data/")
+read_ext(fn, ext = "", dir = "")
 }
 \arguments{
 \item{fn}{the filename}
 
 \item{ext}{the file extension (may also be provided by filename). Can be "csv", "tsv", "xls", or "xlsx".}
 
-\item{dir}{location of the file}
+\item{dir}{folder location (path) of the file}
 }
 \value{
 a data frame

@@ -4,12 +4,14 @@
 \alias{open_clean}
 \title{Open and clean up source data}
 \usage{
-open_clean(col_config, template)
+open_clean(col_config, template, dir)
 }
 \arguments{
 \item{col_config}{vector with the original column names, sorted by a standard}
 
 \item{template}{vector with the description of standard columns (this must be the File_info column in the excel template)}
+
+\item{dir}{folder location (path) of the described file}
 }
 \value{
 cleaned data frame
