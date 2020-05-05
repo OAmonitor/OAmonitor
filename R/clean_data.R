@@ -110,7 +110,7 @@ column_rename <- function(data,col_config,template){
   colnames(data)[colnames(data) == id_column] <- "system_id"
   colnames(data)[colnames(data) == issn_column] <- "issn"
   # if there is no EISSN, generate a column
-  if(!is.na(colnames(data) == eissn_column)){
+  if(eissn_column %in% colnames(data)){
     colnames(data)[colnames(data) == eissn_column] <- "eissn"
   } else{
       data <- dplyr::mutate(data, eissn = NA)
@@ -232,7 +232,7 @@ open_clean <- function(col_config, template, dir){
     column_rename(col_config,template)
 
   # reduce number of columns, except when the user wants to keep all
-  if(!col_keep=="all"){
+  if(!"all" %in% col_keep){
     df <- select_columns(df, col_keep)
   }
 
