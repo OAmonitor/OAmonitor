@@ -9,7 +9,7 @@ save_df(df, which_info)
 \arguments{
 \item{df}{data frame to save}
 
-\item{which_info}{either 'doaj' for DOAJ mining results, 'upw', for Unpaywall, or 'all', for all data}
+\item{which_info}{either 'doaj' for DOAJ mining results, 'upw', for Unpaywall, 'all', for all data, or 'check' for publications that need to be verified.}
 }
 \description{
 Save three kinds of clean data: results from APIs and total data after classification.
