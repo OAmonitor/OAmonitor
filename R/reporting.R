@@ -2,52 +2,6 @@
 NULL
 
 ################################## DEDUPLICATION #########################################
-#' Report on deduplication effort
-report <- function(nrecords_post,nrecords,method){
-  message <- paste("Deduplicating by",
-                   method,
-                   "from",
-                   nrecords,
-                   "records,",
-                   nrecords-nrecords_post,
-                   "were deleted.\n",
-                   "This df now contains",
-                   nrecords_post,
-                   "records.\n\n")
-  cat(message)
-}
-
-#' Deduplicate publication entries
-#'
-#' Deduplication function that takes a dataframe and returns
-#' the deduplicated dataframe based on either the combination of source file and
-#' their internal ID in that source, or DOI.
-#' Reports on the deduplication performed.
-#' @param df The dataframe that needs to be deduplicate
-#' @param method The deduplication method, can be either "doi" or "internal"
-#' @return The deduplicated dataframe
-deduplicate_method <- function(df,method){
-  ### tests ###
-  # input is a dataframe
-  expect_that(df, is_a("data.frame"))
-  # column doi exists
-  # expect_true("doi"%in%names(df))
-  # column doi does not contain NA
-  # expect_that(df$doi )
-  ###############
-  nrecords <- nrow(df)
-  if(method == "internal"){
-    df <- distinct(df,system_id,source,.keep_all = T)
-    method_print = "internal ID"
-  } else if(method == "doi"){
-    df <- distinct(df,doi,.keep_all = T)
-    method_print = "DOI"
-  }
-  nrecords_post <- nrow(df)
-  report(nrecords_post,nrecords,method_print)
-  return(df)
-}
-
 #' Deduplication of publication entries
 #'
 #' Deduplication function that uses a single dataframe and applies a variety
@@ -56,25 +10,30 @@ deduplicate_method <- function(df,method){
 #' in the results if a publication is entered multiple times by different groups, eg.
 #' @param df The dataframe that needs to be deduplicated.
 #' @return The deduplicated dataframe.
+#' @export
 deduplicate <- function(df){
+  if(!("doi" %in% names(df))|!("system_id" %in% names(df))|!("source" %in% names(df))){
+    stop("Required columns are not present. Deduplication requires system_id, source, and doi.")
+  }
   # first determine whether there is a mix of multiple source files
   sourcefiles <- df$source %>% as.factor() %>% levels()
   # if a single source file has been used, deduplication can be performed on system ID
   if(length(sourcefiles) < 2){
-    df <- deduplicate_method(df,method="internal")
+    df <- dplyr::distinct(df,system_id,.keep_all = T)
+    return(df)
   }
-  else{
-    # ensure there are only atomic columns in the dataset
-    df <- df %>% select_if(is.atomic)
-    # separate between entries with and without doi
-    df_nondoi <- df %>% filter(is.na(doi))
-    df_doi <- df %>% filter(!is.na(doi))
-    # deduplicate both individually
-    df_doi <- deduplicate_method(df_doi,method="doi")
-    df_nondoi <- deduplicate_method(df_nondoi,method="internal")
-    # combine
-    df <- full_join(df_doi,df_nondoi)
-  }
+  # ensure there are only atomic columns in the dataset
+  df <- df %>% dplyr::select_if(is.atomic)
+  # use existing information to add DOIs to those with unknown dois
+  # separate between entries with and without doi
+  df_nondoi <- df %>% dplyr::filter(is.na(doi))
+  df_doi <- df %>% dplyr::filter(!is.na(doi))
+  # deduplicate by DOI
+  df_doi <- dplyr::distinct(df,doi,.keep_all = T)
+  # combine
+  df <- dplyr::bind_rows(df_doi,df_nondoi)
+  # deduplicate by system_ID/source combination
+  df <- dplyr::distinct(df,system_id,source,.keep_all = T)
   return(df)
 }
 
@@ -86,7 +45,7 @@ deduplicate_per_unit <- function(df){
   df_dedup <- NULL
   for(unit in levels(as.factor(df$org_unit))){
     df_sub <- df %>%
-      filter(org_unit==unit) %>%
+      dplyr::filter(org_unit==unit) %>%
       deduplicate()
     df_dedup <- bind_rows(df_dedup,df_sub)
   }
