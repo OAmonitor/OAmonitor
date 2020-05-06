@@ -101,7 +101,18 @@ reduce_categories <- function(df){
 }
 
 ###################################### REPORTING #####################################
+
+#' Generate a report
+#'
+#' Turn a dataframe with classification into a report summarizing the different kinds of
+#' access to publications.
+#' @param df The dataframe with classification label (OA_label)
+#' @return summary of the results in a dataframe
+#' @export
 report_to_dataframe <- function(df){
+  if(!"OA_label" %in% names(df)){
+    stop("Before extracting a report, please run the classification pipeline (`classify_oa()`).")
+  }
   ## Write a general report for the entire dataset
   df_report <- df %>%
     group_by(org_unit, OA_label) %>%
