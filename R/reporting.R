@@ -1,5 +1,6 @@
 #' @import magrittr
 #' @import ggplot2
+#' @import ggalluvial
 #' @import grDevices
 NULL
 
@@ -88,19 +89,6 @@ check_info <- function(df, cutoff = 0.05, save = F){
 }
 
 
-#################################### DATA REFORMATTING FOR REPORT ###########################
-get_first_word <- function(sentence){
-  words <-stringr::str_split(sentence, " ")
-  first_word <- words[[1]][1]
-  return(first_word)
-}
-
-reduce_categories <- function(df){
-  df <- df %>% dplyr::mutate(
-    OA_label_explainer_short = mapply(get_first_word,OA_label_explainer)
-  )
-  return(df)
-}
 
 ###################################### REPORTING #####################################
 
@@ -273,10 +261,10 @@ report_to_alluvial <- function(df,title="all", save=F){
   plt_alluv <- ggplot(df_sum,
          aes(y = n_papers,
              axis1 = OA_label_explainer_short, axis2 = OA_label)) +
-    ggalluvial::geom_alluvium(aes(fill = OA_label),
+    geom_alluvium(aes(fill = OA_label),
                   width = 0, knot.pos = 0, reverse = FALSE) +
     guides(fill = FALSE) +
-    ggalluvial::geom_stratum(width = 1/8, reverse = FALSE) +
+    geom_stratum(width = 1/8, reverse = FALSE) +
     geom_text(stat = "stratum", infer.label = TRUE, reverse = FALSE) +
     scale_x_continuous(breaks = 1:2, labels = c("OA Strategy", "OA Status")) +
     scale_fill_manual(values = oacols) +
@@ -292,6 +280,21 @@ report_to_alluvial <- function(df,title="all", save=F){
   } else{
     plt_alluv
   }
+}
+
+
+#################################### DATA REFORMATTING FOR ALLUVIAL ###########################
+get_first_word <- function(sentence){
+  words <-stringr::str_split(sentence, " ")
+  first_word <- words[[1]][1]
+  return(first_word)
+}
+
+reduce_categories <- function(df){
+  df <- df %>% dplyr::mutate(
+    OA_label_explainer_short = mapply(get_first_word,OA_label_explainer)
+  )
+  return(df)
 }
 
 ################### CUSTOMIZED REPORTS ######################
