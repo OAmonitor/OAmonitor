@@ -1,4 +1,6 @@
 #' @import magrittr
+#' @import ggplot2
+#' @import grDevices
 NULL
 
 ################################## DEDUPLICATION #########################################
@@ -66,7 +68,7 @@ check_info <- function(df, cutoff = 0.05, save = F){
   # extract the org_units for which the percentage "NONE" exceeds the cutoff
   org_units_to_check <- df %>%
     dplyr::group_by(org_unit) %>%
-    dplyr::summarize(no_label = sum(OA_label_explainer=="NONE")/dplyr::n()) %>%
+    dplyr::summarise(no_label = sum(OA_label_explainer=="NONE")/dplyr::n()) %>%
     dplyr::filter(no_label > cutoff) %>%
     dplyr::pull(org_unit)
 
@@ -88,13 +90,13 @@ check_info <- function(df, cutoff = 0.05, save = F){
 
 #################################### DATA REFORMATTING FOR REPORT ###########################
 get_first_word <- function(sentence){
-  words <- str_split(sentence, " ")
+  words <-stringr::str_split(sentence, " ")
   first_word <- words[[1]][1]
   return(first_word)
 }
 
 reduce_categories <- function(df){
-  df <- df %>% mutate(
+  df <- df %>% dplyr::mutate(
     OA_label_explainer_short = mapply(get_first_word,OA_label_explainer)
   )
   return(df)
@@ -106,9 +108,9 @@ reduce_categories <- function(df){
 #'
 #' Turn a dataframe with classification into a report summarizing the different kinds of
 #' access to publications.
-#' @param df The dataframe with classification label (OA_label)
-#' @param title the name of the data
-#' @param save Should the dataframe be saved or not
+#' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
+#' @param title the name of the reporting unit
+#' @param save show the image (F) or save it (in `data/output`)
 #' @return summary of the results in a dataframe
 #' @export
 report_to_dataframe <- function(df, title="all", save=F){
@@ -121,12 +123,12 @@ report_to_dataframe <- function(df, title="all", save=F){
     deduplicate()
   df_report <- df %>%
     dplyr::group_by(org_unit, OA_label) %>%
-    dplyr::summarise(n_papers = n())
+    dplyr::summarise(n_papers = dplyr::n())
   # deduplicate the dataset and score irrespective of org_unit
   df_all <- df %>%
     deduplicate() %>%
     dplyr::group_by(OA_label) %>%
-    dplyr::summarise(n_papers = n()) %>%
+    dplyr::summarise(n_papers = dplyr::n()) %>%
     dplyr::mutate(org_unit = "all")
   # add all columns to the report
   df_report <- dplyr::bind_rows(df_report,df_all)
@@ -144,12 +146,12 @@ report_to_dataframe <- function(df, title="all", save=F){
   # generate a report for explainer column
   df_explainer <- df %>%
     dplyr::group_by(org_unit, OA_label_explainer) %>%
-    dplyr::summarise(n_papers = n())
+    dplyr::summarise(n_papers = dplyr::n())
   # deduplicate the dataset and score irrespective of org_unit - for explainer
   df_explainer_all <- df %>%
     deduplicate() %>%
     dplyr::group_by(OA_label_explainer) %>%
-    dplyr::summarise(n_papers = n()) %>%
+    dplyr::summarise(n_papers = dplyr::n()) %>%
     dplyr::mutate(org_unit = "all")
   # combine to single dataframe
   df_report_explainer <- dplyr::bind_rows(df_explainer,df_explainer_all)
@@ -168,7 +170,7 @@ report_to_dataframe <- function(df, title="all", save=F){
     if (!file.exists(here::here("data/output"))){
       dir.create(here::here("data/output"))
     }
-    title_slug <- str_replace(title," ","_")
+    title_slug <- stringr::str_replace(title," ","_")
     outfile <- paste0("data/output/results_",title_slug,"_",lubridate::today(),".csv")
     readr::write_csv(df_report, outfile)
   }
@@ -179,14 +181,14 @@ report_to_dataframe <- function(df, title="all", save=F){
 
 ##################################### IMAGING ###############################################
 
-#' Turn a report into an image
+#' Turn classification data into a barplot
 #'
-#' Turn a summary report into two bar chart: proportional and with total numbers.
-#' @param df the reported dataframe (result of `classify_oa`)
+#' Turn a summary report into two barplots: proportional and with total numbers.
+#' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
 #' @param title the name of the reporting unit
-#' @param save show the image (F) or save it (in `output/`)
+#' @param save show the image (F) or save it (in `figures/`)
 #' @export
-report_to_image <- function(df, title, save = F){
+report_to_image <- function(df, title = "all", save = F){
   if(!"OA_label" %in% names(df)){
     stop("Before extracting a report, please run the classification pipeline (`classify_oa()`).")
   }
@@ -196,7 +198,7 @@ report_to_image <- function(df, title, save = F){
   }
 
   oacols <- c("gray88","chartreuse3","orange3","gold1")
-  title_slug <- str_replace(title," ","_")
+  title_slug <-stringr::str_replace(title," ","_")
   outfile <- paste0("figures/plot_",title_slug)
   out_prop <- paste0(outfile,"_prop_",lubridate::today(),".png")
   out_num <- paste0(outfile,"_number_",lubridate::today(),".png")
@@ -237,53 +239,70 @@ report_to_image <- function(df, title, save = F){
   }
 }
 
-#' Make an alluvial diagram with the data
-report_to_alluvial <- function(df,name){
-  oacols <- c("gray88","chartreuse3","orange3","gold1")
+#' Turn classification data into an alluvial diagram
+#'
+#' Turn a summary report into an alluvial diagram clarifying OA strategy.
+#' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
+#' @param title the name of the reporting unit
+#' @param save show the image (F) or save it (in `figures/`)
+#' @export
+report_to_alluvial <- function(df,title="all", save=F){
+  if(!"OA_label" %in% names(df)){
+    stop("Before extracting a report, please run the classification pipeline (`classify_oa()`).")
+  }
+  # generate figures folder if this does not yet exist
+  if (save & !file.exists(here::here("figures"))){
+    dir.create(here::here("figures"))
+  }
 
-  title_slug <- str_replace(name," ","_")
-  outfile <- paste0("output/alluvial_",title_slug,"_",lubridate::today(),".png")
+  oacols <- c("gray88","chartreuse3","orange3","gold1")
 
   df_sum <- df %>%
     reduce_categories() %>%
     deduplicate() %>%
-    group_by(org_unit,OA_label,OA_label_explainer_short) %>%
-    summarise(n_papers = n()) %>%
+    dplyr::group_by(org_unit,OA_label,OA_label_explainer_short) %>%
+    dplyr::summarise(n_papers = dplyr::n()) %>%
     # ensure levels of df are in order: closed/green/hybrid/gold
     as.data.frame() %>%
-    mutate(
-      OA_label = fct_relevel(OA_label, "CLOSED","GREEN","HYBRID","GOLD"),
-      OA_label_explainer_short = fct_relevel(OA_label_explainer_short, "VSNU","DOAJ",after=Inf),
-      OA_label_explainer_short = fct_relevel(OA_label_explainer_short,"NONE")
+    dplyr::mutate(
+      OA_label = forcats::fct_relevel(OA_label, "CLOSED","GREEN","HYBRID","GOLD"),
+      OA_label_explainer_short = forcats::fct_relevel(OA_label_explainer_short, "VSNU","DOAJ",after=Inf),
+      OA_label_explainer_short = forcats::fct_relevel(OA_label_explainer_short,"NONE")
     )
 
   plt_alluv <- ggplot(df_sum,
          aes(y = n_papers,
              axis1 = OA_label_explainer_short, axis2 = OA_label)) +
-    geom_alluvium(aes(fill = OA_label),
+    ggalluvial::geom_alluvium(aes(fill = OA_label),
                   width = 0, knot.pos = 0, reverse = FALSE) +
     guides(fill = FALSE) +
-    geom_stratum(width = 1/8, reverse = FALSE) +
+    ggalluvial::geom_stratum(width = 1/8, reverse = FALSE) +
     geom_text(stat = "stratum", infer.label = TRUE, reverse = FALSE) +
     scale_x_continuous(breaks = 1:2, labels = c("OA Strategy", "OA Status")) +
     scale_fill_manual(values = oacols) +
     theme_bw() +
-    labs(title = paste("Open Access publication strategies for", name),
+    labs(title = paste("Open Access publication strategies for", title),
          y = "Number of papers")
 
-  ggsave(filename = outfile, plot = plt_alluv, device=png())
-  dev.off()
+  if(save){
+    title_slug <-stringr::str_replace(title," ","_")
+    outfile <- paste0("figures/alluvial_",title_slug,"_",lubridate::today(),".png")
+    ggsave(filename = outfile, plot = plt_alluv, device=png())
+    dev.off()
+  } else{
+    plt_alluv
+  }
 }
 
 
 open_reporting_file <- function(path){
-  reporting <- read_excel(path)
+  reporting <- readxl::read_excel(path)
   reporting <- reporting[2:ncol(reporting)]
   return(reporting)
 }
 
 commandline_report <- function(name){
-  name_upper <- str_to_upper(name)
+  name_upper <- stringr::str_to_upper(name)
   message <- paste(
     "\n\n#### GENERATING REPORT FOR",
     name_upper,
@@ -299,10 +318,10 @@ commandline_report <- function(name){
 #' in the data. Requires a name to save the report and figure.
 full_report <- function(df,name="all"){
   commandline_report(name)
-  name_slug <- str_replace(name," ","_")
+  name_slug <-stringr::str_replace(name," ","_")
   outfilename <- paste0("./output/report_",name_slug,"_",lubridate::today(),".csv")
   df <- df %>% dplyr::group_by(org_unit) %>% deduplicate()
-  report_to_dataframe(df) %>% write_csv(outfilename)
+  report_to_dataframe(df) %>% readr::write_csv(outfilename)
   report_to_image(df,name)
   report_to_alluvial(df,name)
 }
@@ -316,9 +335,9 @@ individual_reports <- function(path_report){
   reporting <- open_reporting_file(path_report)
   for(r in seq_along(reporting)){
     name <- colnames(reporting)[r]
-    col <- pull(reporting, name)
+    col <- dplyr::pull(reporting, name)
     units <- col[!is.na(col)]
-    df_r <- df %>% filter(org_unit%in%units)
+    df_r <- df %>% dplyr::filter(org_unit%in%units)
     full_report(df_r,name)
   }
 }
@@ -333,11 +352,11 @@ hoop_report <- function(df){
   hoopfile <- read_ext(path_hoop,dir="")
   for(h in seq_along(hoopfile)){
     name <- colnames(hoopfile)[h]
-    col <- pull(hoopfile, name)
+    col <- dplyr::pull(hoopfile, name)
     units <- col[!is.na(col)]
     if(length(units) < 1){next}
-    df <- df %>% mutate(
-      org_unit = case_when(
+    df <- df %>% dplyr::mutate(
+      org_unit = dplyr::case_when(
         org_unit %in% units ~ name,
         TRUE ~ org_unit
       )
@@ -345,7 +364,7 @@ hoop_report <- function(df){
   }
   df <- df %>%
     # remove any remaining org_unit entries that were not replaced
-    filter(org_unit %in% colnames(hoopfile))
+   dplyr::filter(org_unit %in% colnames(hoopfile))
   full_report(df,name="HOOP")
 }
 
