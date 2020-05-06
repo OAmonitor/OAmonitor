@@ -107,60 +107,97 @@ reduce_categories <- function(df){
 #' Turn a dataframe with classification into a report summarizing the different kinds of
 #' access to publications.
 #' @param df The dataframe with classification label (OA_label)
+#' @param title the name of the data
+#' @param save Should the dataframe be saved or not
 #' @return summary of the results in a dataframe
 #' @export
-report_to_dataframe <- function(df){
+report_to_dataframe <- function(df, title="all", save=F){
   if(!"OA_label" %in% names(df)){
     stop("Before extracting a report, please run the classification pipeline (`classify_oa()`).")
   }
   ## Write a general report for the entire dataset
+  df <- df %>%
+    dplyr::group_by(org_unit) %>%
+    deduplicate()
   df_report <- df %>%
-    group_by(org_unit, OA_label) %>%
-    summarise(n_papers = n())
+    dplyr::group_by(org_unit, OA_label) %>%
+    dplyr::summarise(n_papers = n())
   # deduplicate the dataset and score irrespective of org_unit
   df_all <- df %>%
     deduplicate() %>%
-    group_by(OA_label) %>%
-    summarise(n_papers = n()) %>%
-    mutate(org_unit = "all")
+    dplyr::group_by(OA_label) %>%
+    dplyr::summarise(n_papers = n()) %>%
+    dplyr::mutate(org_unit = "all")
   # add all columns to the report
-  df_report <- bind_rows(df_report,df_all)
+  df_report <- dplyr::bind_rows(df_report,df_all)
   # transform the data
-  df_report <- df_report %>% pivot_wider(names_from=OA_label,values_from=n_papers)
+  df_report <- df_report %>% tidyr::pivot_wider(names_from=OA_label,values_from=n_papers)
   # add percentages
-  df_report <- df_report %>% mutate(
-    Total_papers = sum(CLOSED,GOLD,GREEN,HYBRID, na.rm=T),
-    gold_percent = round(GOLD/Total_papers*100,1),
-    hybrid_percent = round(HYBRID/Total_papers*100,1),
-    green_percent = round(GREEN/Total_papers*100,1),
-    total_OA_percent = round((1 - CLOSED/Total_papers)*100,1)
-  )
+  df_report <- df_report %>%
+    dplyr::mutate(
+      Total_papers = sum(CLOSED,GOLD,GREEN,HYBRID, na.rm=T),
+      gold_percent = round(GOLD/Total_papers*100,1),
+      hybrid_percent = round(HYBRID/Total_papers*100,1),
+      green_percent = round(GREEN/Total_papers*100,1),
+      total_OA_percent = round((1 - CLOSED/Total_papers)*100,1)
+    )
   # generate a report for explainer column
   df_explainer <- df %>%
-    group_by(org_unit, OA_label_explainer) %>%
-    summarise(n_papers = n())
+    dplyr::group_by(org_unit, OA_label_explainer) %>%
+    dplyr::summarise(n_papers = n())
   # deduplicate the dataset and score irrespective of org_unit - for explainer
   df_explainer_all <- df %>%
     deduplicate() %>%
-    group_by(OA_label_explainer) %>%
-    summarise(n_papers = n()) %>%
-    mutate(org_unit = "all")
+    dplyr::group_by(OA_label_explainer) %>%
+    dplyr::summarise(n_papers = n()) %>%
+    dplyr::mutate(org_unit = "all")
   # combine to single dataframe
-  df_report_explainer <- bind_rows(df_explainer,df_explainer_all)
+  df_report_explainer <- dplyr::bind_rows(df_explainer,df_explainer_all)
   # transform the data
-  df_report_explainer <- df_report_explainer %>% pivot_wider(names_from=OA_label_explainer,values_from=n_papers)
+  df_report_explainer <- df_report_explainer %>%
+    tidyr::pivot_wider(names_from=OA_label_explainer,values_from=n_papers)
   # join both reports
-  df_report <- left_join(df_report,df_report_explainer,by="org_unit")
+  df_report <- dplyr::left_join(df_report,df_report_explainer,by="org_unit")
+
+
+  if(save){
+    # generate figures folder if this does not yet exist
+    if (!file.exists(here::here("data"))){
+      dir.create(here::here("data"))
+    }
+    if (!file.exists(here::here("data/output"))){
+      dir.create(here::here("data/output"))
+    }
+    title_slug <- str_replace(title," ","_")
+    outfile <- paste0("data/output/results_",title_slug,"_",lubridate::today(),".csv")
+    readr::write_csv(df_report, outfile)
+  }
+
   return(df_report)
 }
 
 
 ##################################### IMAGING ###############################################
 
-report_to_image <- function(df,title){
+#' Turn a report into an image
+#'
+#' Turn a summary report into two bar chart: proportional and with total numbers.
+#' @param df the reported dataframe (result of `classify_oa`)
+#' @param title the name of the reporting unit
+#' @param save show the image (F) or save it (in `output/`)
+#' @export
+report_to_image <- function(df, title, save = F){
+  if(!"OA_label" %in% names(df)){
+    stop("Before extracting a report, please run the classification pipeline (`classify_oa()`).")
+  }
+  # generate figures folder if this does not yet exist
+  if (save & !file.exists(here::here("figures"))){
+    dir.create(here::here("figures"))
+  }
+
   oacols <- c("gray88","chartreuse3","orange3","gold1")
   title_slug <- str_replace(title," ","_")
-  outfile <- paste0("output/plot_",title_slug)
+  outfile <- paste0("figures/plot_",title_slug)
   out_prop <- paste0(outfile,"_prop_",lubridate::today(),".png")
   out_num <- paste0(outfile,"_number_",lubridate::today(),".png")
 
@@ -180,16 +217,24 @@ report_to_image <- function(df,title){
     ylab("proportion of papers") +
     geom_bar(position="fill")
 
-  ggsave(filename = out_prop, plot = plot_prop, device=png())
-  dev.off()
+  if(save){
+    ggsave(filename = out_prop, plot = plot_prop, device=png())
+    dev.off()
+  } else{
+    plot_prop
+  }
 
   # PLOT ACTUAL NUMBER
   plot_num <- p +
     ylab("number of papers") +
     geom_bar()
 
-  ggsave(filename = out_num, plot = plot_num, device=png())
-  dev.off()
+  if(save){
+    ggsave(filename = out_num, plot = plot_num, device=png())
+    dev.off()
+  } else{
+    plot_num
+  }
 }
 
 #' Make an alluvial diagram with the data
