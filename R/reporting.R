@@ -294,11 +294,25 @@ report_to_alluvial <- function(df,title="all", save=F){
   }
 }
 
+################### CUSTOMIZED REPORTS ######################
 
-open_reporting_file <- function(path){
-  reporting <- readxl::read_excel(path)
-  reporting <- reporting[2:ncol(reporting)]
-  return(reporting)
+#' Generate a full report
+#'
+#' Function that runs all individual reporting functions, and generates
+#' a report dataframe in `data/output`, and images in `figures`.
+#' For individual reports that directly return results: use `report_to_dataframe`,
+#' `report_to_image`, or `report_to_alluvial`.
+#' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
+#' @param title the name of the reporting unit
+#' @export
+full_report <- function(df,title="all"){
+  if(!"OA_label" %in% names(df)){
+    stop("Before extracting reports, please run the classification pipeline (`classify_oa()`).")
+  }
+  commandline_report(title)
+  report_to_dataframe(df,title,save = T)
+  report_to_image(df,title,save = T)
+  report_to_alluvial(df,title,save=T)
 }
 
 commandline_report <- function(name){
@@ -307,23 +321,8 @@ commandline_report <- function(name){
     "\n\n#### GENERATING REPORT FOR",
     name_upper,
     "####\n\n"
-    )
+  )
   cat(message)
-}
-
-#' Generate a full report
-#'
-#' Function to generate both a dataset and corresponding
-#' figure, reporting on the classification found
-#' in the data. Requires a name to save the report and figure.
-full_report <- function(df,name="all"){
-  commandline_report(name)
-  name_slug <-stringr::str_replace(name," ","_")
-  outfilename <- paste0("./output/report_",name_slug,"_",lubridate::today(),".csv")
-  df <- df %>% dplyr::group_by(org_unit) %>% deduplicate()
-  report_to_dataframe(df) %>% readr::write_csv(outfilename)
-  report_to_image(df,name)
-  report_to_alluvial(df,name)
 }
 
 #' Generate many individual reports
@@ -331,7 +330,10 @@ full_report <- function(df,name="all"){
 #' The custom-made reporting sheet is used to
 #' write individual reports and figures for
 #' each set of units in the reporting sheet.
-individual_reports <- function(path_report){
+#' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
+#' @param path_report Path to the custom excel file that contains reporting information
+#' @export
+individual_reports <- function(df,path_report){
   reporting <- open_reporting_file(path_report)
   for(r in seq_along(reporting)){
     name <- colnames(reporting)[r]
@@ -342,14 +344,24 @@ individual_reports <- function(path_report){
   }
 }
 
+open_reporting_file <- function(path){
+  reporting <- readxl::read_excel(path)
+  reporting <- reporting[2:ncol(reporting)]
+  return(reporting)
+}
+
+
 ################################### HOOP AREAS #######################################
 
 #' Report for HOOP areas
 #'
 #' Go over HOOP areas that were filled out with existing organization units
 #' and generate reports on the areas overall.
-hoop_report <- function(df){
-  hoopfile <- read_ext(path_hoop,dir="")
+#' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
+#' @param path_hoop Path to the custom excel file that contains hoop information
+#' @export
+hoop_report <- function(df, path_hoop){
+  hoopfile <- read_ext(path_hoop)
   for(h in seq_along(hoopfile)){
     name <- colnames(hoopfile)[h]
     col <- dplyr::pull(hoopfile, name)
@@ -364,8 +376,8 @@ hoop_report <- function(df){
   }
   df <- df %>%
     # remove any remaining org_unit entries that were not replaced
-   dplyr::filter(org_unit %in% colnames(hoopfile))
-  full_report(df,name="HOOP")
+    dplyr::filter(org_unit %in% colnames(hoopfile))
+  full_report(df,title="HOOP")
 }
 
 
