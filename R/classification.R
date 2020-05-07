@@ -402,7 +402,8 @@ custom_label <- function(column,custom_list){
   # the previously generated custom_green column will be used.
   if(nrow(label_df) != length(column)){
     warning("Duplicate IDs exist in the Custom ID data. No specific labels can therefore be assigned.")
-    return(custom_return)
+    single_label <- dplyr::case_when(custom_return ~ "multiple") # only label when TRUE; NA is used later to determine label
+    return(single_label)
   } else{
     label_df %>% dplyr::pull(label) %>% return()
   }
