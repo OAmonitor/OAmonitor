@@ -462,7 +462,7 @@ classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F
   # following additions are only done in case customization is required
   if(custom){
     df <- df %>%
-      apply_custom(path = path_custom) %>% #TODO this function requires a path
+      apply_custom(path = custom_path) %>% #TODO this function requires a path
       dplyr::mutate(
         OA_label = dplyr::case_when(
           OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ "GREEN",
