@@ -430,10 +430,11 @@ custom_label <- function(column,custom_list){
 #' @param upwdf Data frame resulting from unpaywall API mining (see `get_upw()`)
 #' @param max_year The journal must have been registered in the DOAJ before or during this year
 #' @param custom Is a custom label applicable?
+#' @param custom_path Path to the excel file with custom labels
 #' @param save_results Do you want to save the resulting data frame?
 #' @return data frame with Open Access classification (OA_label) and explainer (OA_label_explainer)
 #' @export
-classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F, save_results=F){
+classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F, custom_path="", save_results=F){
   #TODO if data columns do not exist: add them, and remove apply_matches
   df <- df %>%
     apply_matches(doajdf=doajdf, vsnudf=vsnudf, upwdf=upwdf, max_year) %>%
@@ -461,7 +462,7 @@ classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F
   # following additions are only done in case customization is required
   if(custom){
     df <- df %>%
-      apply_custom() %>% #TODO this function requires a path
+      apply_custom(path = path_custom) %>% #TODO this function requires a path
       dplyr::mutate(
         OA_label = dplyr::case_when(
           OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ "GREEN",

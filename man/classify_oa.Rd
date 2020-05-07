@@ -11,6 +11,7 @@ classify_oa(
   upwdf,
   max_year = "previous",
   custom = F,
+  custom_path = "",
   save_results = F
 )
 }
@@ -26,6 +27,8 @@ classify_oa(
 \item{max_year}{The journal must have been registered in the DOAJ before or during this year}
 
 \item{custom}{Is a custom label applicable?}
+
+\item{custom_path}{Path to the excel file with custom labels}
 
 \item{save_results}{Do you want to save the resulting data frame?}
 }
