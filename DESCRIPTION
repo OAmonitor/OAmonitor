@@ -30,9 +30,7 @@ Imports:
  testthat (>= 2.3.2),
  tibble (>= 2.1.3),
  tidyr (>= 1.0.2),
- tidyselect (>= 1.0.0),
- tidyverse(>= 1.3.0),
- usethis (>= 1.5.1)
+ tidyselect (>= 1.0.0)
 Suggests: 
     knitr,
     rmarkdown
