@@ -4,15 +4,17 @@
 \alias{report_to_image}
 \title{Turn classification data into a barplot}
 \usage{
-report_to_image(df, title = "all", save = F)
+report_to_image(df, title = "all", type = "prop", save = F)
 }
 \arguments{
 \item{df}{The dataframe with classification label (OA_label; result of `classify_oa`)}
 
 \item{title}{the name of the reporting unit}
 
+\item{type}{type of barplot: "prop" (proportional) or "total" (absolute numbers)}
+
 \item{save}{show the image (F) or save it (in `figures/`)}
 }
 \description{
-Turn a summary report into two barplots: proportional and with total numbers.
+Turn a summary report into a barplot; either proportional or with total numbers.
 }

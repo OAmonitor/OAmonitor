@@ -171,15 +171,20 @@ report_to_dataframe <- function(df, title="all", save=F){
 
 #' Turn classification data into a barplot
 #'
-#' Turn a summary report into two barplots: proportional and with total numbers.
+#' Turn a summary report into a barplot; either proportional or with total numbers.
 #' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
 #' @param title the name of the reporting unit
+#' @param type type of barplot: "prop" (proportional) or "total" (absolute numbers)
 #' @param save show the image (F) or save it (in `figures/`)
 #' @export
-report_to_image <- function(df, title = "all", save = F){
+report_to_image <- function(df, title = "all", type = "prop", save = F){
   if(!"OA_label" %in% names(df)){
     stop("Before extracting a report, please run the classification pipeline (`classify_oa()`).")
   }
+  if(!(type == "prop" | type == "total")){
+    stop("Define the output type as 'prop', or 'total'.")
+  }
+
   # generate figures folder if this does not yet exist
   if (save & !file.exists(here::here("figures"))){
     dir.create(here::here("figures"))
@@ -203,27 +208,31 @@ report_to_image <- function(df, title = "all", save = F){
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
   # PLOT PROPORTION
-  plot_prop <- p +
-    ylab("proportion of papers") +
-    geom_bar(position="fill")
+  if(type == "prop"){
+    plot_prop <- p +
+      ylab("proportion of papers") +
+      geom_bar(position="fill")
 
-  if(save){
-    ggsave(filename = out_prop, plot = plot_prop, device=png())
-    dev.off()
-  } else{
-    plot_prop
+    if(save){
+      ggsave(filename = out_prop, plot = plot_prop, device=png())
+      dev.off()
+    } else{
+      plot_prop
+    }
   }
 
   # PLOT ACTUAL NUMBER
-  plot_num <- p +
-    ylab("number of papers") +
-    geom_bar()
+  if(type == "total"){
+    plot_num <- p +
+      ylab("number of papers") +
+      geom_bar()
 
-  if(save){
-    ggsave(filename = out_num, plot = plot_num, device=png())
-    dev.off()
-  } else{
-    plot_num
+    if(save){
+      ggsave(filename = out_num, plot = plot_num, device=png())
+      dev.off()
+    } else{
+      plot_num
+    }
   }
 }
 
