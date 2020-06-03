@@ -327,7 +327,8 @@ full_report <- function(df,title="all"){
   }
   commandline_report(title)
   report_to_dataframe(df,title,save = T)
-  report_to_image(df,title,save = T)
+  report_to_image(df,title,type = "total",save = T)
+  report_to_image(df,title,type = "prop",save = T)
   report_to_alluvial(df,title,save=T)
 }
 
