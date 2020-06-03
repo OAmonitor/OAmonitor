@@ -184,6 +184,7 @@ number_to_issn <- function(number){
 clean_issn <- function(column){
   column <- stringr::str_replace(column,'\\s+','') #remove spaces from ISSN
   column <- stringr::str_replace_all(column,'[:punct:]','') #remove all punctuation
+  column <- stringr::str_sub(column, 1,8) # only take the first 8 elements so that duplicate ISSNs are removed
   # ensure ISSN has two elements, with a hyphen in between
   column <- mapply(number_to_issn,column)
   return(column)
