@@ -250,7 +250,8 @@ report_to_alluvial <- function(df,title="all", save=F){
   }
 
   oacols <- c("gray88","chartreuse3","orange3","gold1")
-  StatStratum <- ggalluvial::StatStratum
+  StatStratum <- ggalluvial::StatStratum # found this solution here:https://stackoverflow.com/questions/53797744/specifying-the-stratum-and-alluvium-parameters-without-attaching-ggalluvial
+  # it does not seem to work and the code still needs to be run locally.
 
   df_sum <- df %>%
     reduce_categories() %>%
@@ -265,11 +266,16 @@ report_to_alluvial <- function(df,title="all", save=F){
       OA_label_explainer_short = forcats::fct_relevel(OA_label_explainer_short,"NONE")
     )
 
-  plt_alluv <- ggplot(df_sum,
-         aes(y = n_papers,
-             axis1 = OA_label_explainer_short, axis2 = OA_label)) +
-    geom_alluvium(aes(fill = OA_label),
-                  width = 0, knot.pos = 0, reverse = FALSE) +
+  plt_alluv <-  ggplot(df_sum,
+                       aes(
+                         y = n_papers,
+                         axis1 = OA_label_explainer_short,
+                         axis2 = OA_label)) +
+        geom_alluvium(
+          aes(fill = OA_label),
+          width = 0,
+          knot.pos = 0,
+          reverse = FALSE) +
     guides(fill = FALSE) +
     geom_stratum(width = 1/8, reverse = FALSE) +
     geom_text(stat = "stratum", infer.label = TRUE, reverse = FALSE) +
