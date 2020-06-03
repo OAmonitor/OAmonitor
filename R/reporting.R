@@ -250,6 +250,7 @@ report_to_alluvial <- function(df,title="all", save=F){
   }
 
   oacols <- c("gray88","chartreuse3","orange3","gold1")
+  StatStratum <- ggalluvial::StatStratum
 
   df_sum <- df %>%
     reduce_categories() %>%
