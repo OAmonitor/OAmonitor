@@ -13,7 +13,7 @@ full_report(df, title = "all")
 }
 \description{
 Function that runs all individual reporting functions, and generates
-a report dataframe in `data/output`, and images in `figures`.
+a report dataframe in `output`, and images in `figures`.
 For individual reports that directly return results: use `report_to_dataframe`,
 `report_to_image`, or `report_to_alluvial`.
 }

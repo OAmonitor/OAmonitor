@@ -98,7 +98,7 @@ check_info <- function(df, cutoff = 0.05, save = F){
 #' access to publications.
 #' @param df The dataframe with classification label (OA_label; result of `classify_oa`)
 #' @param title the name of the reporting unit
-#' @param save show the image (F) or save it (in `data/output`)
+#' @param save show the image (F) or save it (in `output`)
 #' @return summary of the results in a dataframe
 #' @export
 report_to_dataframe <- function(df, title="all", save=F){
@@ -151,15 +151,12 @@ report_to_dataframe <- function(df, title="all", save=F){
 
 
   if(save){
-    # generate figures folder if this does not yet exist
-    if (!file.exists(here::here("data"))){
-      dir.create(here::here("data"))
-    }
-    if (!file.exists(here::here("data/output"))){
-      dir.create(here::here("data/output"))
+    # generate output folder if this does not yet exist
+    if (!file.exists(here::here("output"))){
+      dir.create(here::here("output"))
     }
     title_slug <- stringr::str_replace(title," ","_")
-    outfile <- paste0("data/output/results_",title_slug,"_",lubridate::today(),".csv")
+    outfile <- paste0("output/results_",title_slug,"_",lubridate::today(),".csv")
     readr::write_csv(df_report, outfile)
   }
 
@@ -311,7 +308,7 @@ reduce_categories <- function(df){
 #' Generate a full report
 #'
 #' Function that runs all individual reporting functions, and generates
-#' a report dataframe in `data/output`, and images in `figures`.
+#' a report dataframe in `output`, and images in `figures`.
 #' For individual reports that directly return results: use `report_to_dataframe`,
 #' `report_to_image`, or `report_to_alluvial`.
 #' @param df The dataframe with classification label (OA_label; result of `classify_oa`)

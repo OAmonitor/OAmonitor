@@ -11,7 +11,7 @@ report_to_dataframe(df, title = "all", save = F)
 
 \item{title}{the name of the reporting unit}
 
-\item{save}{show the image (F) or save it (in `data/output`)}
+\item{save}{show the image (F) or save it (in `output`)}
 }
 \value{
 summary of the results in a dataframe
