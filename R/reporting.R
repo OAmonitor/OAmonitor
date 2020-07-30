@@ -106,11 +106,9 @@ report_to_dataframe <- function(df, title="all", save=F){
     stop("Before extracting a report, please run the classification pipeline (`classify_oa()`).")
   }
   ## Write a general report for the entire dataset
-  df <- df %>%
-    dplyr::group_by(org_unit) %>%
-    deduplicate()
   df_report <- df %>%
     dplyr::group_by(org_unit, OA_label) %>%
+    deduplicate() %>%
     dplyr::summarise(n_papers = dplyr::n())
   # deduplicate the dataset and score irrespective of org_unit
   df_all <- df %>%
@@ -134,6 +132,7 @@ report_to_dataframe <- function(df, title="all", save=F){
   # generate a report for explainer column
   df_explainer <- df %>%
     dplyr::group_by(org_unit, OA_label_explainer) %>%
+    deduplicate() %>%
     dplyr::summarise(n_papers = dplyr::n())
   # deduplicate the dataset and score irrespective of org_unit - for explainer
   df_explainer_all <- df %>%
