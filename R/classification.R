@@ -3,6 +3,15 @@ NULL
 
 ############################## GENERIC CLASSIFICATION TOOLS ###############################
 
+
+all_labels <- function(type = "label"){
+  if(type == "label"){
+    return(c("GOLD","HYBRID","GREEN","CLOSED"))
+  } else if(type == "explainer"){
+    return(c("DOAJ","VSNU","UPW"))
+  }
+}
+
 remove_na <- function(column){
   column <- column[!is.na(column)]
   return(column)
