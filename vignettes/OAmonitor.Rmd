@@ -1,5 +1,5 @@
 ---
-title: "Open Access monitor"
+title: "OAmonitor R package"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{OAmonitor}
@@ -13,15 +13,24 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+Kristina Hettne and Barbara Vreede
+Date
 
+## Introduction
+This vignette explains the use of the OAmonitor package.
+
+## Package overview
+The OAmonitor takes publication data from a single year and determines per article its open access status, using the Directory of Open Access Journals, (DOAJ), Unpaywall and the association of universities in the Netherlands (VSNU) Open Access publishing deals (an excel sheet available through the VSNU). It uses peer reviewed journal articles registered in CRIS systems as input. It was created in a collaboration between Utrecht University Library and Leiden University Library.
+
+## OAmonitor basics
+### Mock data
 ```{r setup}
 library(OAmonitor)
 
 ```
 
-
+### Own data
 Fill out the excel template like so:
-
 
 Then load all files in the excel template
 ```{r}
