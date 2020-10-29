@@ -1,5 +1,11 @@
 ---
 title: "OAmonitor R package"
+author:
+  - Kristina Hettne^[Leiden University Libraries, https://orcid.org/0000-0002-4182-7560]
+  - Barbara Vreede^[Utrecht University, https://orcid.org/0000-0002-5023-4601]
+
+date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
+
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{OAmonitor}
@@ -13,26 +19,39 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-Kristina Hettne and Barbara Vreede
-Date
 
 ## Introduction
-This vignette explains the use of the OAmonitor package.
+This vignette explains the use of the OAmonitor package. We first go through the functionalities of the package and then provide an example for use.
 
 ## Package overview
 The OAmonitor takes publication data from a single year and determines per article its open access status, using the Directory of Open Access Journals, (DOAJ), Unpaywall and the association of universities in the Netherlands (VSNU) Open Access publishing deals (an excel sheet available through the VSNU). It uses peer reviewed journal articles registered in CRIS systems as input. It was created in a collaboration between Utrecht University Library and Leiden University Library.
 
 ## OAmonitor basics
-### Mock data
-```{r setup}
-library(OAmonitor)
+The OAmonitor has three basic parts: data gathering and cleaning, data classification and results reporting. Before user data can be loaded it needs to be in a specific format.
 
+### User data preparation
+
+
+### Data gathering and cleaning
+
+
+### Data classification
+
+
+### Results reporting
+
+## Example
+
+### Setup
+```{r setup}
+remotes::install_github("https://github.com/bvreede/OAmonitor")
+library(OAmonitor)
+library(tidyverse)
 ```
 
-### Own data
-Fill out the excel template like so:
+### Input data
 
-Then load all files in the excel template
+Load all files in the excel template
 ```{r}
 
 
