@@ -146,8 +146,6 @@ report_to_dataframe <- function(df, title="all", save=F){
   df_report_explainer <- df_report_explainer %>%
     tidyr::pivot_wider(names_from=OA_label_explainer,values_from=n_papers)
   # join both reports
-  df_report <- df_report %>%
-    dplyr::mutate(org_unit = as.character(org_unit))
   df_report <- dplyr::left_join(df_report,df_report_explainer,by="org_unit")
 
 
