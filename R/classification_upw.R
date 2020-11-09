@@ -68,30 +68,19 @@ upw_api_v2 <- function(doi,email){
   api <- "https://api.unpaywall.org/v2/"
   email <- paste0("?email=",email)
   query <- paste0(api,doi,email)
-  result2 <- httr::GET(query)
+  result <- httr::GET(query)
   # resolve query results and transform to a line that can be added to a df
-  result_txt2 <- httr::content(result2, as="text",encoding="UTF-8")
-  #output of API v2 is single level. FROMJSON does not transform into df. WHYYYY
-  result_line2 <- jsonlite::fromJSON(result_txt2)
-
-  #alternative approach
-  result_parsed2 <- httr::content(result2, as="parsed",encoding="UTF-8")
-  result_df <- enframe(result_parsed2) %>%
-    tidyr::pivot_wider(names_from = name, values_from = value)
-  #PROBLEM: columns are still lists - would need to convert of find other approach
-
-
-  #add column 'oa_color' as column to extract from upw data later
+  # NB add hierarchical layer to list to facilitate further processing
+  result_list <- httr::content(result, as="parsed",encoding="UTF-8") %>% list()
+  result_line <- tibble::tibble(x = result_list) %>% tidyr::unnest_wider(x)
+  #add variable 'oa_color' as column to extract from upw data later
   #'oa_color' = 'oa_status' unless oa_status is bronze, and green version is available
-  result_line2 <- result_line %>%
-    dplyr::mutate(oa_color = case_when(
+  result_line <- dplyr::mutate(result_line, oa_color = case_when(
     (oa_status == "bronze" & has_repository_copy == TRUE) ~ "green",
     TRUE ~ oa_status))
-
     return(result_line)
 }
 
-email = "bianca.kramer@gmail.com"
-doi = "10.1038/nature12373"
+
 
 
