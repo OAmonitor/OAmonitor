@@ -62,7 +62,6 @@ upw_api <- function(doi,email){
   return(result_line)
 }
 
-#IN PROGRESS
 upw_api_v2 <- function(doi,email){
   # compile query to send to unpaywall
   api <- "https://api.unpaywall.org/v2/"
@@ -73,7 +72,7 @@ upw_api_v2 <- function(doi,email){
   # NB add hierarchical layer to list to facilitate further processing
   result_list <- httr::content(result, as="parsed",encoding="UTF-8") %>% list()
   result_line <- tibble::tibble(x = result_list) %>% tidyr::unnest_wider(x)
-  #add variable 'oa_color' as column to extract from upw data later
+  #add variable 'oa_color' to extract from upw data later
   #'oa_color' = 'oa_status' unless oa_status is bronze, and green version is available
   result_line <- dplyr::mutate(result_line, oa_color = case_when(
     (oa_status == "bronze" & has_repository_copy == TRUE) ~ "green",
