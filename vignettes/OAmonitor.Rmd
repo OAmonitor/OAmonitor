@@ -27,27 +27,67 @@ This vignette explains the use of the OAmonitor package. We first go through the
 The OAmonitor takes publication data from a single year and determines per article its open access status, using the Directory of Open Access Journals, (DOAJ), Unpaywall and the association of universities in the Netherlands (VSNU) Open Access publishing deals (an excel sheet available through the VSNU). It uses peer reviewed journal articles registered in CRIS systems as input. It was created in a collaboration between Utrecht University Library and Leiden University Library.
 
 ## OAmonitor basics
-The OAmonitor has three basic parts: data gathering and cleaning, data classification and results reporting. Before user data can be loaded it needs to be in a specific format.
+The OAmonitor has three basic parts: data gathering and cleaning, data classification and results reporting. Before user data can be loaded it needs to be in a specific format that is described in the "User data preparation" section.
 
 ### User data preparation
+User data is likely the export from a CRIS, or download from an online database (e.g. Scopus).
 
+* It may consist of multiple independent source files.
+* It must be tabular, and can be either csv (comma or semicolon-separated), tsv (tab-separated), xlsx or xls.
+
+The workflow requires the following columns, which may or may not contain empty cells:
+
+| Column | Explanation | Empty cells? |
+|:-------|:------------|:-------------|
+|Unique ID|source-specific ID|No|
+|Organization unit|e.g. departments, faculties (but can be anything)|No
+|ISSN|max 2 columns (e.g. ISSN + eISSN)|Yes
+|DOI|digital object identifier (number or with http address before)|Yes
+
+Columns do not need to be renamed prior to use (but relevant columns do require a unique name).
+
+### User data configuration and loading
+Download the [excel template](https://github.com/bvreede/OAmonitoring/blob/master/config/config_pub_files.xlsx) to configure where your input files are located, what they are called and which columns that correspond to the ones that will be used by the script.
+
+* Fill out the template
+  * Put each individual data file in a new column
+  * Fill out the name of each relevant column per data file
+* Place all source files in a subfolder of the project folder (e.g. data/)
+* Save the excel template inside the project folder
+
+```r
+open_everything()
+```
 
 ### Data gathering and cleaning
-
+```r
+get_vsnu()
+get_doaj()
+get_upw()
+```
 
 ### Data classification
-
-
+```r
+classify_oa()
+```
 ### Results reporting
+```r
+report_to_dataframe()
+report_to_image()
+report_to_alluvial()
+full_report()
+```
+## Custom reports 
 
 ## Example
 
 ### Setup
-```{r setup}
+```{r, setup, results='hide', message = FALSE}
 remotes::install_github("https://github.com/bvreede/OAmonitor")
 library(OAmonitor)
 library(tidyverse)
 ```
+Note: Enter '3' not to update any packages. When you are done, place a # in front of the first line of code to avoid R trying to install the package every time.
 
 ### Input data
 
