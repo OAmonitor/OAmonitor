@@ -12,5 +12,5 @@ test_that("unpaywall mining works",{
     upwdf <- get_upw(df, email = "b.m.i.vreede@uu.nl")})
   expect_true("data.frame" %in% class(upwdf))
   expect_true("oa_color" %in% names(upwdf))
-  #add line for testing bronze-green prioritization
+  #add line for testing green over bronze prioritization
 })
