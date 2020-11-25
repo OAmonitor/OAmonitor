@@ -1,6 +1,7 @@
 #' @import magrittr
 NULL
 
+#is it necessary to call the scripts here?
 #source("R/get_doaj.R")
 #source("R/get_upw.R")
 #source("R/get_vsnu.R")

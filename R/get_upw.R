@@ -52,7 +52,7 @@ or provide the path of saved data that was previously mined from the Unpaywall A
 
 #TO DO: document choice of version + incorporate in classification.R
 
-upw_api <- function(doi, email, version){
+upw_api <- function(doi, email, version=2){
   if(version == 2){
     upw_api_v2(doi,email)
   }else if(version == 1){
