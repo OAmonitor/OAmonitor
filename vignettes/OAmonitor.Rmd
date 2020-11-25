@@ -47,30 +47,69 @@ The workflow requires the following columns, which may or may not contain empty 
 Columns do not need to be renamed prior to use (but relevant columns do require a unique name).
 
 ### User data configuration and loading
-Download the [excel template](https://github.com/bvreede/OAmonitoring/blob/master/config/config_pub_files.xlsx) to configure where your input files are located, what they are called and which columns that correspond to the ones that will be used by the script.
+Download the [excel template](https://github.com/bvreede/OAmonitoring/blob/master/config/config_pub_files.xlsx) to configure where your input data files are located, what they are called and which columns that correspond to the ones that will be used by the script.
 
 * Fill out the template
   * Put each individual data file in a new column
   * Fill out the name of each relevant column per data file
-* Place all source files in a subfolder of the project folder (e.g. data/)
-* Save the excel template inside the project folder
+* Save the excel template directly in the project folder
+* Place all input data files in a subfolder of the project folder (e.g. `data/`)
+
+The data can be loaded into a combined data frame using the `open_everything()` function, where `file` is the name of the template file and `dir` is the folder where your input data files are stored.
 
 ```r
-open_everything()
+df <- open_everything(file = "config_pub_files.xlsx",
+                      dir = "data")
 ```
 
-### Data gathering and cleaning
+### External data gathering and cleaning
+The following external data sources are used:
+
+* VSNU (spreadsheet, available upon request)
+* DOAJ (via API)
+* Unpaywall (via API)
+
+We recommend placing the VSNU excel file in the `data/` folder of your project. The DOAJ and UPW downloads will be placed in `data/clean/` automatically when generated so it is useful if you already created the folder `data/`; if that does not exist, the program will create it for you.
+
+The VSNU data can be loaded by using the `get_vsnu()` function with the path to the VSNU file as argument. 
+
 ```r
-get_vsnu()
-get_doaj()
-get_upw()
+vsnudf <- get_vsnu("FILEPATH")
+```
+
+Note that running the DOAJ and Unpaywall APIs takes a while (i.e. several hours), so the function contains the option to save, and then reload the data at a later stage if needed.
+
+Make sure that `save_results = T`, and fill out your own email address. We advice to select both lines and run them simultaneously, since they will take a while. Keep your computer open while the API code runs. 
+
+```r
+get_doaj(df, source = "api", save_results = T)
+get_upw(df, source = "api", email = "YOUREMAIL@UNI.NL", save_results = T)
+```
+
+When the API functions are done, the DOAJ and Unpaywall files can be loaded with the `get_doaj()` and `get_upw()` functions by providing the paths to the files as argument instead of `api`. These files are by default stored in `/data/clean`.
+
+```r
+doajdf <- get_doaj(df, source="FILEPATH")
+upwdf <- get_upw(df, source="FILEPATH")
 ```
 
 ### Data classification
+The `classify_oa()` function uses information in a hierarchical way to arrive at a classification:
+
+![OA classification flow diagram](/Users/hettnekm1/Pictures/classify_oa.png)
+
+If the argument `save_results` is set to TRUE, an output file containing the classification labels per article will be generated.
+
 ```r
-classify_oa()
+df_class <- classify_oa(df,
+                        doajdf=doajdf,
+                        vsnudf=vsnudf,
+                        upwdf=upwdf,
+                        save_results = TRUE)
 ```
 ### Results reporting
+Results of the classification  
+
 ```r
 report_to_dataframe()
 report_to_image()
