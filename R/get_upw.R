@@ -71,7 +71,7 @@ upw_api_v2 <- function(doi,email){
   result_line <- tibble::tibble(x = list(result_list)) %>% tidyr::unnest_wider(x)
   #add variable 'oa_color' to extract from upw data later
   #classify bronze oa with repository copy as green
-  result_line <- dplyr::mutate(result_line, oa_color = case_when(
+  result_line <- dplyr::mutate(result_line, oa_color = dplyr::case_when(
     (oa_status == "bronze" & has_repository_copy == TRUE) ~ "green",
     TRUE ~ oa_status))
     return(result_line)
