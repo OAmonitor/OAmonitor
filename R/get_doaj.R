@@ -61,7 +61,7 @@ process_doaj <- function(df){
 #' Mining the DOAJ API
 #'
 #' This function uses an issn to mine the
-#' DOAJ API (at doaj.org/api/v1/).
+#' DOAJ API (at doaj.org/api/v2/).
 #' The entry for this ISSN in the DOAJ is returned.
 #'
 #' @param issn ISSN for journal that needs to be checked
