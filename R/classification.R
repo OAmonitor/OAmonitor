@@ -123,18 +123,24 @@ or provide the path of saved data that was previously mined from the Unpaywall A
 #' @param df the data frame resulting from a DOAJ API mining
 #' @return  cleaned up data frame
 process_doaj <- function(df){
+  vars = c("bibjson.pissn", "bibjson.eissn")
   df <- df %>%
-    # unnest the issn information in the bibjson.identifier column
-    tidyr::unnest(bibjson.identifier, keep_empty = T, names_sep="_") %>%
-    dplyr::rename(issn = bibjson.identifier_id,
-           issn_type = bibjson.identifier_type)
+    # gather issn and issn type information in two columns
+    tidyr::pivot_longer(cols = any_of(vars),
+                        values_to = "issn",
+                        names_to = "issn_type",
+                        values_drop_na = F) %>%
+    # remove string 'bibjson.' from issn_type
+    dplyr::mutate(issn_type = stringr::str_remove(issn_type, "bibjson."))
+
   return(df)
 }
+
 
 #' Mining the DOAJ API
 #'
 #' This function uses an issn to mine the
-#' DOAJ API (at doaj.org/api/v1/).
+#' DOAJ API (at doaj.org/api/v2/).
 #' The entry for this ISSN in the DOAJ is returned.
 #'
 #' @param issn ISSN for journal that needs to be checked
@@ -142,7 +148,7 @@ process_doaj <- function(df){
 #' @export
 doaj_api <- function(issn){
   Sys.sleep(0.6) # requests for this api are limited at 2 per second, so the request is slowed down.
-  api <- "https://doaj.org/api/v1/search/journals/issn:"
+  api <- "https://doaj.org/api/v2/search/journals/issn:"
   query <- paste0(api,issn)
   result <- httr::GET(query) %>%
     httr::content(as="text",encoding="UTF-8")
