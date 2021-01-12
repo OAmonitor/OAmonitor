@@ -63,7 +63,7 @@
   <link rel="assets" href="https://github.githubassets.com/">
   
 
-  <meta name="request-id" content="EC33:D451:EB74:1333D:5FBD1A51" data-pjax-transient="true"/><meta name="html-safe-nonce" content="18726e3ffc30764a4335ad8263d1da67a67c548fdafed9f011e93fc279268a9e" data-pjax-transient="true"/><meta name="visitor-payload" content="eyJyZWZlcnJlciI6IiIsInJlcXVlc3RfaWQiOiJFQzMzOkQ0NTE6RUI3NDoxMzMzRDo1RkJEMUE1MSIsInZpc2l0b3JfaWQiOiI3NTg1MzUwMDc5NjAzMzUwMDk4IiwicmVnaW9uX2VkZ2UiOiJmcmEiLCJyZWdpb25fcmVuZGVyIjoiZnJhIn0=" data-pjax-transient="true"/><meta name="visitor-hmac" content="43eefc8d8663b0859b069774782851c8f6d3542ad0958d7da90b9014e8db776e" data-pjax-transient="true"/><meta name="cookie-consent-required" content="true" data-pjax-transient="true"/>
+  <meta name="request-id" content="ED27:050D:10EE6:1627D:5FBD1C4D" data-pjax-transient="true"/><meta name="html-safe-nonce" content="8e31b5341556c14c20ec4ac2e7e64c39cfab4061632b8fafede1b31a88c493a3" data-pjax-transient="true"/><meta name="visitor-payload" content="eyJyZWZlcnJlciI6IiIsInJlcXVlc3RfaWQiOiJFRDI3OjA1MEQ6MTBFRTY6MTYyN0Q6NUZCRDFDNEQiLCJ2aXNpdG9yX2lkIjoiODY5MzAzMzQ3NTM2NTQ3NzQ1NCIsInJlZ2lvbl9lZGdlIjoiZnJhIiwicmVnaW9uX3JlbmRlciI6ImZyYSJ9" data-pjax-transient="true"/><meta name="visitor-hmac" content="faf13ddbcfbf1b84f010512d97c631d255abccca7da29b949b2d34738e077227" data-pjax-transient="true"/><meta name="cookie-consent-required" content="true" data-pjax-transient="true"/>
 
     <meta name="hovercard-subject-tag" content="repository:261684204" data-pjax-transient>
 
@@ -310,7 +310,7 @@
           spellcheck="false"
           autocomplete="off"
           >
-          <input type="hidden" data-csrf="true" class="js-data-jump-to-suggestions-path-csrf" value="s8K4EptXpkB90j9KRmKeNkdkJgUMIxG+KettJDrYooOiQ4UM3dkEnwEHg9L7EyKmb70GP5l08NjcxeFqGZJuKQ==" />
+          <input type="hidden" data-csrf="true" class="js-data-jump-to-suggestions-path-csrf" value="+wss5nF3HLaODdo4YPQYefZEPQmF+kFGalvjmc73qZ0KgIZb+dQ7ZYZIynDLhkmNV6T7QtuRhvaQTT1KYQKJpg==" />
           <input type="hidden" class="js-site-search-type-field" name="type" >
             <img src="https://github.githubassets.com/images/search-key-slash.svg" alt="" class="mr-2 header-search-key-slash">
 
@@ -673,13 +673,13 @@
           class="position-absolute top-0 right-0 btn-link link-gray"
           data-action="click:signup-prompt#dismiss"
           data-ga-click="(Logged out) Sign up prompt, clicked Dismiss, text:dismiss"
-          data-optimizely-event="click.dismiss_signup_prompt, 576619882.1606228561"
+          data-optimizely-event="click.dismiss_signup_prompt, 504931194.1606229069"
         >
           Dismiss
         </button>
         <h3 class="pt-2">Join GitHub today</h3>
         <p class="col-6 mx-auto">GitHub is home to over 50 million developers working together to host and review code, manage projects, and build software together.</p>
-        <a class="btn btn-primary" data-ga-click="(Logged out) Sign up prompt, clicked Sign up, text:sign-up" data-optimizely-event="click.signup, 576619882.1606228561" data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;files signup prompt&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/bvreede/presentations/blob/master/presentations/mockdata/mockdata_dighum_2018.csv&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="1c97189ec1f58b7520a4206acefbd553749101d337bef56a4c41c6d88e3f7481" href="/join?source=prompt-blob-show&amp;source_repo=bvreede%2Fpresentations">Sign up</a>
+        <a class="btn btn-primary" data-ga-click="(Logged out) Sign up prompt, clicked Sign up, text:sign-up" data-optimizely-event="click.signup, 504931194.1606229069" data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;files signup prompt&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/bvreede/presentations/blob/master/presentations/mockdata/mockdata_dighum_2018.csv&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="1c97189ec1f58b7520a4206acefbd553749101d337bef56a4c41c6d88e3f7481" href="/join?source=prompt-blob-show&amp;source_repo=bvreede%2Fpresentations">Sign up</a>
       </div>
     </div>
 
@@ -689,13 +689,13 @@
           <h3 class="h2 lh-condensed mt-sm-1 mt-lg-0">GitHub is where the world builds software</h3>
           <p class="f4 text-gray mt-2 mb-3">Millions of developers and companies build, ship, and maintain their software on GitHub &#8212; the largest and most advanced development platform in the world.</p>
           <div class="d-flex flex-items-center pb-3">
-            <a class="btn btn-primary" data-ga-click="(Logged out) Sign up prompt, clicked Sign up, text:sign-up" data-optimizely-event="click.signup, 576619882.1606228561" data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;files signup prompt&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/bvreede/presentations/blob/master/presentations/mockdata/mockdata_dighum_2018.csv&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="1c97189ec1f58b7520a4206acefbd553749101d337bef56a4c41c6d88e3f7481" href="/join?source=prompt-blob-show&amp;source_repo=bvreede%2Fpresentations">Sign up for free</a>
+            <a class="btn btn-primary" data-ga-click="(Logged out) Sign up prompt, clicked Sign up, text:sign-up" data-optimizely-event="click.signup, 504931194.1606229069" data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;files signup prompt&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/bvreede/presentations/blob/master/presentations/mockdata/mockdata_dighum_2018.csv&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="1c97189ec1f58b7520a4206acefbd553749101d337bef56a4c41c6d88e3f7481" href="/join?source=prompt-blob-show&amp;source_repo=bvreede%2Fpresentations">Sign up for free</a>
             <button
               type="button"
               class="btn-link link-gray ml-3"
               data-action="click:signup-prompt#dismiss"
               data-ga-click="(Logged out) Sign up prompt, clicked Dismiss, text:dismiss"
-              data-optimizely-event="click.dismiss_signup_prompt, 576619882.1606228561"
+              data-optimizely-event="click.dismiss_signup_prompt, 504931194.1606229069"
             >
               Dismiss
             </button>
