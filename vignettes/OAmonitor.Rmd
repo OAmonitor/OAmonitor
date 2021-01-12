@@ -175,31 +175,3 @@ df_class_custom <- classify_oa(df, doajdf=doajdf, vsnudf=vsnudf, upwdf=upwdf,
                                custom=T, custom_path="FILEPATH")
 ```
 
-## Example using test data
-
-```{r, setup, results='hide', message = FALSE}
-remotes::install_github("https://github.com/bvreede/OAmonitor")
-library(OAmonitor)
-library(tidyverse)
-dir.create("testdata/")
-ghdir <- "https://github.com/bvreede/presentations/blob/master/presentations/mockdata/"
-files <- c("mock_config.xlsx","mock_doaj.csv","mock_upw.csv", "mock_vsnu.xlsx", "mockdata_dighum_2018.csv","mockdata_nice_2018.tsv")
-for(f in files){
-  download.file(
-    url = paste(ghdir, f, sep = ""),
-    destfile = paste("testdata/", f, sep = ""),
-    method = "curl")
-}
-df <- open_everything(file = "testdata/mock_config.xlsx",
-                      dir = "testdata")
-vsnudf <- get_vsnu("testdata/mock_vsnu.xlsx")
-doajdf <- get_doaj(df, source="testdata/mock_doaj.csv")
-upwdf <- get_upw(df, source="testdata/mock_upw.csv")
-df_class <- classify_oa(df,
-                        doajdf=doajdf,
-                        vsnudf=vsnudf,
-                        upwdf=upwdf,
-                        save_results = TRUE)
-full_report(df_class)
-```
-Note: Enter '3' not to update any packages. When you are done, place a # in front of the first line of code to avoid R trying to install the package every time.
