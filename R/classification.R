@@ -168,13 +168,18 @@ doaj_api <- function(issn){
 #' @export
 upw_api <- function(doi,email){
   # compile query to send to unpaywall
-  api <- "http://api.unpaywall.org/"
+  api <- "https://api.unpaywall.org/v2/"
   email <- paste0("?email=",email)
   query <- paste0(api,doi,email)
   result <- httr::GET(query)
   # resolve query results and transform to a line that can be added to a df
-  result_txt <- httr::content(result, as="text",encoding="UTF-8")
-  result_line <- jsonlite::fromJSON(result_txt,flatten=T)$results
+  result_list <- httr::content(result, as="parsed", encoding="UTF-8")
+  result_line <- tibble::tibble(x = list(result_list)) %>% tidyr::unnest_wider(x)
+  #add variable 'oa_color' to extract from upw data later
+  #classify bronze oa with repository copy as green
+  result_line <- dplyr::mutate(result_line, oa_color = dplyr::case_when(
+    (oa_status == "bronze" & has_repository_copy == TRUE) ~ "green",
+    TRUE ~ oa_status))
   return(result_line)
 }
 
