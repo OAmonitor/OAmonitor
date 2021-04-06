@@ -219,7 +219,10 @@ api_to_df <- function(df, which_info, email = ""){
       }, error = function(e){
         cat(paste0("There is a problem with DOI ",entry,". Pausing briefly, then trying again.\n"))
         Sys.sleep(2)
-        collect[[i]] <- upw_api(entry, email=email)
+        #include nested tryCatch to return to loop when error persists
+        tryCatch({
+          collect[[i]] <- upw_api(entry, email=email)
+        }, error = function(e){})
       })
     }
   }
