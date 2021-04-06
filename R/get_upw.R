@@ -38,11 +38,10 @@ or provide the path of saved data that was previously mined from the Unpaywall A
   return(df)
 }
 
-
 #' Mining the Unpaywall API
 #'
 #' Collecting DOI results from Unpaywall using their REST API
-#' (at http://api.unpaywall.org). The entry for the DOI in the
+#' (at http://api.unpaywall.org/v2/). The entry for the DOI in the
 #' Unpaywall database is returned.
 #'
 #' @param doi DOI of paper that needs to be checked
@@ -50,17 +49,7 @@ or provide the path of saved data that was previously mined from the Unpaywall A
 #' @return list with Unpaywall results
 #' @export
 
-#TO DO: document choice of version + incorporate in classification.R
-
-upw_api <- function(doi, email, version=2){
-  if(version == 2){
-    upw_api_v2(doi,email)
-  }else if(version == 1){
-    upw_api_v1(doi,email)
-  }
-}
-
-upw_api_v2 <- function(doi,email){
+upw_api <- function(doi,email){
   # compile query to send to unpaywall
   api <- "https://api.unpaywall.org/v2/"
   email <- paste0("?email=",email)
@@ -75,17 +64,4 @@ upw_api_v2 <- function(doi,email){
     (oa_status == "bronze" & has_repository_copy == TRUE) ~ "green",
     TRUE ~ oa_status))
     return(result_line)
-}
-
-upw_api_v1 <- function(doi,email){
-  # compile query to send to unpaywall
-  api <- "http://api.unpaywall.org/"
-  email <- paste0("?email=",email)
-  query <- paste0(api,doi,email)
-  result <- httr::GET(query)
-  # resolve query results and transform to a line that can be added to a df
-  result_txt <- httr::content(result, as="text",encoding="UTF-8")
-  result_line <- jsonlite::fromJSON(result_txt, flatten=T)$results
-  #result_parsed <- httr::content(result, as="parsed",encoding="UTF-8")
-  return(result_line)
 }
