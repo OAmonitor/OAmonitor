@@ -271,7 +271,9 @@ custom_label <- function(column,custom_list){
   # join back, this will ensure each label is in the right place.
   label_df <- label_df %>%
     tidyr::gather(label_header, label, -ID, -custom_green, na.rm=T) %>%
-    dplyr::right_join(label_df, by="ID")
+    dplyr::right_join(label_df, by="ID") %>%
+    #sorted on ID to force same order as in original dataframe
+    arrange(ID)
 
   # Multiple labels will make the dataframe
   # unusable to merge back to the original. In this case,
@@ -342,11 +344,13 @@ classify_oa <- function(df, doajdf, vsnudf, upwdf, max_year="previous", custom=F
       apply_custom(path = custom_path) %>% #TODO this function requires a path
       dplyr::mutate(
         OA_label = dplyr::case_when(
-          OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ "GREEN",
+          #added "UPW (bronze)"as this is classified as CLOSED
+          OA_label_explainer %in% c("UPW (green)","UPW (closed)", "UPW (bronze)", "NONE") & !is.na(custom_label) ~ "GREEN",
           TRUE ~ OA_label
         ),
         OA_label_explainer = dplyr::case_when(
-          OA_label_explainer %in% c("UPW (green)","UPW (closed)", "NONE") & !is.na(custom_label) ~ paste0("CUSTOM (", custom_label,")"),
+          #added "UPW (bronze)"as this is classified as CLOSED
+          OA_label_explainer %in% c("UPW (green)","UPW (closed)", "UPW (bronze)", "NONE") & !is.na(custom_label) ~ paste0("CUSTOM (", custom_label,")"),
           TRUE ~ OA_label_explainer
         )
       )
