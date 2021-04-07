@@ -75,10 +75,6 @@ test_that("DOIs without UPW registration do not break the loop",{
   df <- tibble::tibble(doi=doi_some_fails)
   expect_output({
     upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")})
-  # the result is a data frame
-  expect_true("data.frame" %in% class(upwdf))
-  # the data frame contains the column oa_color
-  expect_true("oa_color" %in% names(upwdf))
   # the data frame is as long as all valid DOIs
   expect_true(nrow(upwdf) == 3)
 })
