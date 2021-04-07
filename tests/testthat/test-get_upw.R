@@ -74,6 +74,6 @@ test_that("errors can be dealt with",{
     "10.14273/unisa-1437" #DataCite DOI
     )
   df <- tibble::tibble(doi=doi_fails)
-  expect_output({
+  fail({
     upwdf <- get_upw(df, email = "b.m.i.vreede@uu.nl")})
   })
