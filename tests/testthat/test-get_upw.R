@@ -9,6 +9,10 @@ test_that("unpaywall mining works",{
   df <- tibble::tibble(doi=dois)
   expect_output({
     upwdf <- get_upw(df, email = "b.m.i.vreede@uu.nl")})
+  # the result is a data frame
   expect_true("data.frame" %in% class(upwdf))
+  # the data frame contains the column oa_color
   expect_true("oa_color" %in% names(upwdf))
+  # the data frame is as long as all DOIs
+  expect_true(dim(upwdf) == 5)
 })
