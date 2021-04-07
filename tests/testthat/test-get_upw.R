@@ -1,6 +1,7 @@
 context("get_upw")
 
 test_that("unpaywall mining works",{
+<<<<<<< HEAD
   dois <-  c("10.1007/jhep11(2015)127",
              "10.1109/icdsp.2015.7251906",
              "10.1117/1.jei.24.5.053018",
@@ -54,7 +55,7 @@ test_that("unpaywall mining works",{
              "10.1145/2678015.2682536")
   df <- tibble::tibble(doi=dois)
   expect_output({
-    upwdf <- get_upw(df, email = "b.m.i.vreede@uu.nl")})
+    upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")})
   # the result is a data frame
   expect_true("data.frame" %in% class(upwdf))
   # the data frame contains the column oa_color
@@ -69,7 +70,10 @@ test_that("errors can be dealt with",{
     "10.1007/ 78-3-319-27857-5_z",
     "10.1016/j.compedu.2015.08",
     "10.1007/978-3-319-19890-3 24",
-    "10.3233/978-1-61499-609-5-11")
+    "10.3233/978-1-61499-609-5-11",
+    "10.1007/ 78-3-319-27857-5_z", #invalid DOI
+    "10.14273/unisa-1437" #DataCite DOI
+    )
   df <- tibble::tibble(doi=dois)
   expect_output({
     upwdf <- get_upw(df, email = "b.m.i.vreede@uu.nl")})
