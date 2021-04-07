@@ -8,6 +8,7 @@ author:
 date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
 
 output: rmarkdown::html_vignette
+
 vignette: >
   %\VignetteIndexEntry{OAmonitor}
   %\VignetteEngine{knitr::rmarkdown}
@@ -95,9 +96,6 @@ upwdf <- get_upw(df, source="FILEPATH")
 ```
 
 ### Data classification
-The `classify_oa()` function uses information in a hierarchical way to arrive at a classification:
-
-![OA classification flow diagram](/Users/hettnekm1/Pictures/classify_oa.png)
 
 If the argument `save_results` is set to TRUE, an output file containing the classification labels per article will be generated.
 
