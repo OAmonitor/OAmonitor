@@ -50,6 +50,7 @@ or provide the path of saved data that was previously mined from the Unpaywall A
 #' @export
 
 upw_api <- function(doi,email){
+  Sys.sleep(0.2) # making sure the API does not get flooded
   # compile query to send to unpaywall
   api <- "https://api.unpaywall.org/v2/"
   email <- paste0("?email=",email)
