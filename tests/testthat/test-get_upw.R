@@ -89,7 +89,6 @@ test_that("source data with only errors can be dealt with",{
     "10.1016/j.compedu.2015.08",
     "10.1007/978-3-319-19890-3 24",
     "10.3233/978-1-61499-609-5-11",
-    "10.1007/ 78-3-319-27857-5_z",
     "10.14273/unisa-1437"
     )
   df <- tibble::tibble(doi=doi_all_fails)
