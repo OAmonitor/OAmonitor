@@ -94,11 +94,8 @@ api_to_df <- function(df, which_info, email = ""){
     } else if(which_info == "upw"){
       tryCatch({
         collect[[i]] <- upw_api(entry, email=email)
-      }, error = function(e){
-        cat(paste0("There is a problem with DOI ",entry,". Pausing briefly, then trying again.\n"))
-        Sys.sleep(2)
-        collect[[i]] <- upw_api(entry, email=email)
-      })
+      }, error = function(e){}
+      )
     }
   }
   collectdf <- dplyr::bind_rows(collect)
@@ -108,8 +105,6 @@ api_to_df <- function(df, which_info, email = ""){
 
 
 ################################## APPLYING SOURCE TESTS ###################################
-
-
 #' Add Unpaywall data to publications data frame
 #'
 #' This function conflates the publications data frame with the results of mining
