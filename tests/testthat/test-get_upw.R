@@ -64,7 +64,7 @@ test_that("unpaywall mining works",{
   # TODO add line for testing green over bronze prioritization once implemented
 })
 
-test_that("DOIs without UPW registration do not break the loop",{
+test_that("invalid DOIs and DOIS not included in UPW do not break the loop",{
   doi_some_fails <- c(
     "10.1007/jhep11(2015)127",
     "10.1109/icdsp.2015.7251906",
