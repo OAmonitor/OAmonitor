@@ -61,6 +61,7 @@ test_that("unpaywall mining works",{
   expect_true("oa_color" %in% names(upwdf))
   # the data frame is as long as all DOIs
   expect_true(nrow(upwdf) == length(dois))
+  #add line for testing green over bronze prioritization
 })
 
 test_that("errors can be dealt with",{
