@@ -1,7 +1,6 @@
 context("get_upw")
 
 test_that("unpaywall mining works",{
-<<<<<<< HEAD
   dois <-  c("10.1007/jhep11(2015)127",
              "10.1109/icdsp.2015.7251906",
              "10.1117/1.jei.24.5.053018",
