@@ -167,6 +167,7 @@ doaj_api <- function(issn){
 #' @return list with Unpaywall results
 #' @export
 upw_api <- function(doi,email){
+  Sys.sleep(0.2) # making sure the API does not get flooded
   # compile query to send to unpaywall
   api <- "https://api.unpaywall.org/v2/"
   email <- paste0("?email=",email)
@@ -216,14 +217,8 @@ api_to_df <- function(df, which_info, email = ""){
     } else if(which_info == "upw"){
       tryCatch({
         collect[[i]] <- upw_api(entry, email=email)
-      }, error = function(e){
-        cat(paste0("There is a problem with DOI ",entry,". Pausing briefly, then trying again.\n"))
-        Sys.sleep(2)
-        #include nested tryCatch to return to loop when error persists
-        tryCatch({
-          collect[[i]] <- upw_api(entry, email=email)
-        }, error = function(e){})
-      })
+      }, error = function(e){}
+      )
     }
   }
   collectdf <- dplyr::bind_rows(collect)
