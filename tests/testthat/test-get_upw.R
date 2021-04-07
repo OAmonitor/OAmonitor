@@ -73,7 +73,7 @@ test_that("errors can be dealt with",{
     "10.1007/ 78-3-319-27857-5_z", #invalid DOI
     "10.14273/unisa-1437" #DataCite DOI
     )
-  df <- tibble::tibble(doi=dois)
+  df <- tibble::tibble(doi=doi_fails)
   expect_output({
     upwdf <- get_upw(df, email = "b.m.i.vreede@uu.nl")})
   })
