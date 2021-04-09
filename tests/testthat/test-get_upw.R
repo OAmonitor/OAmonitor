@@ -61,20 +61,33 @@ test_that("unpaywall mining works",{
   expect_true("oa_color" %in% names(upwdf))
   # the data frame is as long as all DOIs
   expect_true(nrow(upwdf) == length(dois))
-  #add line for testing green over bronze prioritization
+  # TODO add line for testing green over bronze prioritization once implemented
 })
 
-test_that("errors can be dealt with",{
-  doi_fails <- c(
-    "10.1007/ 78-3-319-27857-5_z",
+test_that("invalid DOIs and DOIS not included in UPW do not break the loop",{
+  doi_some_fails <- c(
+    "10.1007/jhep11(2015)127",
+    "10.1109/icdsp.2015.7251906",
+    "10.1117/1.jei.24.5.053018",
+    "10.1016/j.compedu.2015.08", #invalid DOI
+    "10.14273/unisa-1437" #DataCite DOI
+  )
+  df <- tibble::tibble(doi=doi_some_fails)
+  expect_output({
+    upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")})
+  # the data frame is as long as all valid DOIs
+  expect_true(nrow(upwdf) == 3)
+})
+
+test_that("source data with only errors can be dealt with",{
+  doi_all_fails <- c(
     "10.1016/j.compedu.2015.08",
     "10.1007/978-3-319-19890-3 24",
     "10.3233/978-1-61499-609-5-11",
-    "10.1007/ 78-3-319-27857-5_z", #invalid DOI
-    "10.14273/unisa-1437" #DataCite DOI
+    "10.14273/unisa-1437"
     )
-  df <- tibble::tibble(doi=doi_fails)
+  df <- tibble::tibble(doi=doi_all_fails)
   skip("currently failing test")
   expect_output({
-    upwdf <- get_upw(df, email = "b.m.i.vreede@uu.nl")})
+    upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")})
   })
