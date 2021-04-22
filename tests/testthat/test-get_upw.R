@@ -61,7 +61,6 @@ test_that("unpaywall mining works",{
   expect_true("oa_color" %in% names(upwdf))
   # the data frame is as long as all DOIs
   expect_true(nrow(upwdf) == length(dois))
-  # TODO add line for testing green over bronze prioritization once implemented
 })
 
 test_that("invalid DOIs and DOIS not included in UPW do not break the loop",{
@@ -91,3 +90,20 @@ test_that("source data with only errors can be dealt with",{
   expect_output({
     upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")})
   })
+
+test_that("green is prioritized over bronze",{
+  dois_green_bronze <- c(
+    "10.1007/s00705-020-04577-8", #green over bronze
+    "10.1080/1369183x.2020.1738211", #green over bronze
+    "10.1016/j.cell.2020.11.031", #green over bronze
+    "10.1017/s0007114515002007", #bronze only
+    "10.1001/jamapsychiatry.2015.0526" #bronze only
+  )
+  df <- tibble::tibble(doi=dois_green_bronze)
+  expect_output({
+    upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")})
+  # the data frame contains the expected number of records classified as green
+  expect_true(nrow(filter(upwdf, oa_color == "green")) == 3)
+  # the data frame contains the expected number of records classified as bronze
+  expect_true(nrow(filter(upwdf, oa_color == "bronze")) == 2)
+})
