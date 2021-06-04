@@ -101,7 +101,8 @@ test_that("green is prioritized over bronze",{
   )
   df <- tibble::tibble(doi=dois_green_bronze)
   expect_output({
-    upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")})
+    upwdf <- get_upw(df, email = "b.m.r.kramer@uu.nl")
+  })
   # the data frame contains the expected number of records classified as green
   expect_true(sum(upwdf$oa_color == "green") == 3)
   # the data frame contains the expected number of records classified as bronze
