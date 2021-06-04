@@ -33,5 +33,5 @@ Imports:
  tidyselect (>= 1.0.0)
 Suggests: 
     knitr,
-    rmarkdown
+    markdown
 VignetteBuilder: knitr
